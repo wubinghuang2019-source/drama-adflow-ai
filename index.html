@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>电视剧营销投流 AI 工作台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .nav {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .nav-item {
+            padding: 0.5rem 1.5rem;
+            border: none;
+            background: transparent;
+            color: #666;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+        
+        .nav-item:hover {
+            background: #f0f0f0;
+            color: #667eea;
+        }
+        
+        .nav-item.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: 250px 1fr 300px;
+            gap: 1.5rem;
+        }
+        
+        .sidebar {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+        }
+        
+        .sidebar-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #667eea;
+        }
+        
+        .project-info {
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .project-info-item {
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .project-info-label {
+            color: #666;
+            margin-right: 0.5rem;
+        }
+        
+        .quick-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .quick-action-btn {
+            padding: 0.75rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            text-align: left;
+        }
+        
+        .quick-action-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+        
+        .main-content {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            min-height: 600px;
+        }
+        
+        .module-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 2rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .output-area {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .output-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #667eea;
+        }
+        
+        .output-content {
+            white-space: pre-wrap;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 0.5rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .right-sidebar {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+        }
+        
+        .history-item {
+            padding: 0.75rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .history-item:hover {
+            background: #e9ecef;
+        }
+        
+        .history-item-title {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 0.25rem;
+        }
+        
+        .history-item-date {
+            font-size: 0.8rem;
+            color: #999;
+        }
+        
+        /* 模块切换 */
+        .module {
+            display: none;
+        }
+        
+        .module.active {
+            display: block;
+        }
+        
+        /* 标签选择器 */
+        .tag-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .tag {
+            padding: 0.5rem 1rem;
+            background: #f0f0f0;
+            border: 2px solid transparent;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        
+        .tag:hover {
+            background: #e0e0e0;
+        }
+        
+        .tag.selected {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        /* 平台选择器 */
+        .platform-selector {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .platform-card {
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .platform-card:hover {
+            background: #e9ecef;
+        }
+        
+        .platform-card.selected {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .platform-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .platform-name {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar, .right-sidebar {
+                order: -1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">🎬 电视剧营销投流 AI 工作台</div>
+            <div class="nav">
+                <button class="nav-item active" onclick="switchModule('strategy')">策略生成</button>
+                <button class="nav-item" onclick="switchModule('copywriting')">文案生成</button>
+                <button class="nav-item" onclick="switchModule('monitor')">数据监控</button>
+                <button class="nav-item" onclick="switchModule('analysis')">效果分析</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- 左侧边栏 -->
+        <div class="sidebar">
+            <div class="sidebar-title">当前项目</div>
+            <div class="project-info">
+                <div class="project-info-item">
+                    <span class="project-info-label">剧名:</span>
+                    <span id="current-drama">-</span>
+                </div>
+                <div class="project-info-item">
+                    <span class="project-info-label">类型:</span>
+                    <span id="current-type">-</span>
+                </div>
+                <div class="project-info-item">
+                    <span class="project-info-label">状态:</span>
+                    <span id="current-status">-</span>
+                </div>
+            </div>
+            
+            <div class="sidebar-title">快速操作</div>
+            <div class="quick-actions">
+                <button class="quick-action-btn" onclick="switchModule('strategy')">📋 新建投流方案</button>
+                <button class="quick-action-btn" onclick="switchModule('copywriting')">✍️ 生成投放文案</button>
+                <button class="quick-action-btn" onclick="switchModule('monitor')">📊 查看数据监控</button>
+                <button class="quick-action-btn" onclick="switchModule('analysis')">📈 效果分析报告</button>
+            </div>
+        </div>
+        
+        <!-- 主内容区 -->
+        <div class="main-content">
+            <!-- 策略生成模块 -->
+            <div id="strategy-module" class="module active">
+                <div class="module-title">📋 投流策略生成</div>
+                
+                <div class="form-group">
+                    <label class="form-label">剧集基本信息</label>
+                    <div class="form-row">
+                        <input type="text" class="form-input" id="drama-name" placeholder="剧名（如：繁花）">
+                        <select class="form-select" id="drama-type">
+                            <option value="">选择类型</option>
+                            <option value="古装">古装</option>
+                            <option value="现代">现代</option>
+                            <option value="悬疑">悬疑</option>
+                            <option value="爱情">爱情</option>
+                            <option value="喜剧">喜剧</option>
+                            <option value="科幻">科幻</option>
+                            <option value="战争">战争</option>
+                            <option value="其他">其他</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">主演阵容</label>
+                    <input type="text" class="form-input" id="drama-cast" placeholder="主演（如：胡歌、马伊琍、唐嫣）">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">核心看点（可多选）</label>
+                    <div class="tag-selector" id="highlight-tags">
+                        <div class="tag" onclick="toggleTag(this)">剧情精彩</div>
+                        <div class="tag" onclick="toggleTag(this)">演员阵容</div>
+                        <div class="tag" onclick="toggleTag(this)">制作精良</div>
+                        <div class="tag" onclick="toggleTag(this)">话题热度</div>
+                        <div class="tag" onclick="toggleTag(this)">原著IP</div>
+                        <div class="tag" onclick="toggleTag(this)">情感共鸣</div>
+                        <div class="tag" onclick="toggleTag(this)">视觉效果</div>
+                        <div class="tag" onclick="toggleTag(this)">创新题材</div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">目标受众特征</label>
+                    <textarea class="form-textarea" id="target-audience" placeholder="描述目标受众特征（如：25-35岁女性，都市白领，喜欢情感剧情，关注时尚潮流）"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">预算与周期</label>
+                    <div class="form-row">
+                        <input type="text" class="form-input" id="budget" placeholder="预算范围（如：50-100万）">
+                        <input type="text" class="form-input" id="duration" placeholder="投放周期（如：30天）">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">投放平台（可多选）</label>
+                    <div class="platform-selector">
+                        <div class="platform-card" onclick="togglePlatform(this)">
+                            <div class="platform-icon">🎵</div>
+                            <div class="platform-name">抖音</div>
+                        </div>
+                        <div class="platform-card" onclick="togglePlatform(this)">
+                            <div class="platform-icon">📕</div>
+                            <div class="platform-name">小红书</div>
+                        </div>
+                        <div class="platform-card" onclick="togglePlatform(this)">
+                            <div class="platform-icon">📱</div>
+                            <div class="platform-name">视频号</div>
+                        </div>
+                        <div class="platform-card" onclick="togglePlatform(this)">
+                            <div class="platform-icon">🐦</div>
+                            <div class="platform-name">微博</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="btn" onclick="generateStrategy()">
+                    <span id="strategy-btn-text">生成投流策略</span>
+                </button>
+                
+                <div class="output-area" id="strategy-output" style="display: none;">
+                    <div class="output-title">📊 投流策略方案</div>
+                    <div class="output-content" id="strategy-content"></div>
+                </div>
+            </div>
+            
+            <!-- 文案生成模块 -->
+            <div id="copywriting-module" class="module">
+                <div class="module-title">✍️ 投放文案生成</div>
+                
+                <div class="form-group">
+                    <label class="form-label">剧集信息</label>
+                    <input type="text" class="form-input" id="copy-drama-name" placeholder="剧名">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">素材内容/看点</label>
+                    <textarea class="form-textarea" id="copy-content" placeholder="描述素材内容或剧集看点（如：第3集高能剧情，男主终于表白，情感爆发）"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">文案风格</label>
+                    <div class="tag-selector" id="style-tags">
+                        <div class="tag" onclick="toggleTag(this)">情感共鸣</div>
+                        <div class="tag" onclick="toggleTag(this)">悬疑烧脑</div>
+                        <div class="tag" onclick="toggleTag(this)">轻松搞笑</div>
+                        <div class="tag" onclick="toggleTag(this)">热血燃爆</div>
+                        <div class="tag" onclick="toggleTag(this)">唯美浪漫</div>
+                        <div class="tag" onclick="toggleTag(this)">现实扎心</div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">投放平台（可多选）</label>
+                    <div class="platform-selector">
+                        <div class="platform-card" onclick="togglePlatform(this, 'copy')">
+                            <div class="platform-icon">🎵</div>
+                            <div class="platform-name">抖音</div>
+                        </div>
+                        <div class="platform-card" onclick="togglePlatform(this, 'copy')">
+                            <div class="platform-icon">📕</div>
+                            <div class="platform-name">小红书</div>
+                        </div>
+                        <div class="platform-card" onclick="togglePlatform(this, 'copy')">
+                            <div class="platform-icon">📱</div>
+                            <div class="platform-name">视频号</div>
+                        </div>
+                        <div class="platform-card" onclick="togglePlatform(this, 'copy')">
+                            <div class="platform-icon">🐦</div>
+                            <div class="platform-name">微博</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="btn" onclick="generateCopywriting()">
+                    <span id="copy-btn-text">生成投放文案</span>
+                </button>
+                
+                <div class="output-area" id="copywriting-output" style="display: none;">
+                    <div class="output-title">📝 多平台文案</div>
+                    <div class="output-content" id="copywriting-content"></div>
+                </div>
+            </div>
+            
+            <!-- 数据监控模块 -->
+            <div id="monitor-module" class="module">
+                <div class="module-title">📊 投放数据监控</div>
+                <p style="color: #666; margin: 2rem 0;">数据监控功能正在开发中，敬请期待...</p>
+                <p style="color: #999; font-size: 0.9rem;">将支持：抖音、小红书、视频号、微博四大平台的实时数据监控和可视化分析</p>
+            </div>
+            
+            <!-- 效果分析模块 -->
+            <div id="analysis-module" class="module">
+                <div class="module-title">📈 效果分析报告</div>
+                <p style="color: #666; margin: 2rem 0;">效果分析功能正在开发中，敬请期待...</p>
+                <p style="color: #999; font-size: 0.9rem;">将支持：素材效果分析、用户行为分析、ROI计算、优化建议生成</p>
+            </div>
+        </div>
+        
+        <!-- 右侧边栏 -->
+        <div class="right-sidebar">
+            <div class="sidebar-title">历史方案</div>
+            <div id="history-list">
+                <div class="history-item">
+                    <div class="history-item-title">繁花 - 投流策略</div>
+                    <div class="history-item-date">2024-01-15</div>
+                </div>
+                <div class="history-item">
+                    <div class="history-item-title">繁花 - 第3集文案</div>
+                    <div class="history-item-date">2024-01-16</div>
+                </div>
+            </div>
+            
+            <div class="sidebar-title" style="margin-top: 2rem;">数据概览</div>
+            <div style="padding: 1rem; background: #f8f9fa; border-radius: 8px; text-align: center;">
+                <div style="font-size: 2rem; font-weight: bold; color: #667eea;">-</div>
+                <div style="font-size: 0.9rem; color: #999;">总消耗</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let selectedTags = [];
+        let selectedPlatforms = [];
+        let selectedStyles = [];
+        
+        // 模块切换
+        function switchModule(moduleName) {
+            // 更新导航
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // 切换模块
+            document.querySelectorAll('.module').forEach(module => {
+                module.classList.remove('active');
+            });
+            document.getElementById(moduleName + '-module').classList.add('active');
+        }
+        
+        // 标签切换
+        function toggleTag(element) {
+            element.classList.toggle('selected');
+            const tagText = element.textContent;
+            const parent = element.parentElement;
+            
+            if (parent.id === 'highlight-tags') {
+                if (element.classList.contains('selected')) {
+                    selectedTags.push(tagText);
+                } else {
+                    selectedTags = selectedTags.filter(t => t !== tagText);
+                }
+            } else if (parent.id === 'style-tags') {
+                if (element.classList.contains('selected')) {
+                    selectedStyles.push(tagText);
+                } else {
+                    selectedStyles = selectedStyles.filter(s => s !== tagText);
+                }
+            }
+        }
+        
+        // 平台选择
+        function togglePlatform(element, type = 'strategy') {
+            element.classList.toggle('selected');
+            const platformName = element.querySelector('.platform-name').textContent;
+            
+            if (type === 'strategy') {
+                if (element.classList.contains('selected')) {
+                    selectedPlatforms.push(platformName);
+                } else {
+                    selectedPlatforms = selectedPlatforms.filter(p => p !== platformName);
+                }
+            }
+        }
+        
+        // 生成策略
+        async function generateStrategy() {
+            const dramaName = document.getElementById('drama-name').value;
+            const dramaType = document.getElementById('drama-type').value;
+            const cast = document.getElementById('drama-cast').value;
+            const targetAudience = document.getElementById('target-audience').value;
+            const budget = document.getElementById('budget').value;
+            const duration = document.getElementById('duration').value;
+            
+            if (!dramaName || !dramaType || selectedPlatforms.length === 0) {
+                alert('请填写剧名、类型并选择至少一个投放平台');
+                return;
+            }
+            
+            const btnText = document.getElementById('strategy-btn-text');
+            const originalText = btnText.textContent;
+            btnText.innerHTML = '<span class="loading"></span>生成中...';
+            document.querySelector('.btn').disabled = true;
+            
+            const outputArea = document.getElementById('strategy-output');
+            const outputContent = document.getElementById('strategy-content');
+            outputArea.style.display = 'block';
+            outputContent.textContent = '';
+            
+            try {
+                const response = await fetch('/api/generate-strategy', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        dramaName,
+                        dramaType,
+                        cast,
+                        highlights: selectedTags,
+                        targetAudience,
+                        budget,
+                        duration,
+                        platforms: selectedPlatforms
+                    })
+                });
+                
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    
+                    const chunk = decoder.decode(value);
+                    outputContent.textContent += chunk;
+                }
+                
+                // 更新当前项目信息
+                document.getElementById('current-drama').textContent = dramaName;
+                document.getElementById('current-type').textContent = dramaType;
+                document.getElementById('current-status').textContent = '投放中';
+                
+            } catch (error) {
+                outputContent.textContent = '生成失败，请检查网络连接或联系管理员';
+                console.error('Error:', error);
+            }
+            
+            btnText.textContent = originalText;
+            document.querySelector('.btn').disabled = false;
+        }
+        
+        // 生成文案
+        async function generateCopywriting() {
+            const dramaName = document.getElementById('copy-drama-name').value;
+            const content = document.getElementById('copy-content').value;
+            
+            if (!dramaName || !content) {
+                alert('请填写剧名和素材内容');
+                return;
+            }
+            
+            const btnText = document.getElementById('copy-btn-text');
+            const originalText = btnText.textContent;
+            btnText.innerHTML = '<span class="loading"></span>生成中...';
+            btnText.parentElement.disabled = true;
+            
+            const outputArea = document.getElementById('copywriting-output');
+            const outputContent = document.getElementById('copywriting-content');
+            outputArea.style.display = 'block';
+            outputContent.textContent = '';
+            
+            try {
+                const response = await fetch('/api/generate-copywriting', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        dramaName,
+                        content,
+                        styles: selectedStyles
+                    })
+                });
+                
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    
+                    const chunk = decoder.decode(value);
+                    outputContent.textContent += chunk;
+                }
+                
+            } catch (error) {
+                outputContent.textContent = '生成失败，请检查网络连接或联系管理员';
+                console.error('Error:', error);
+            }
+            
+            btnText.textContent = originalText;
+            btnText.parentElement.disabled = false;
+        }
+    </script>
+</body>
+</html>
