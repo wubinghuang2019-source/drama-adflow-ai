@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>电视剧营销投流 AI 工作台</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -236,8 +237,61 @@
         
         .output-content {
             white-space: pre-wrap;
-            line-height: 1.6;
+            line-height: 1.8;
             color: #333;
+        }
+        
+        .output-content h1, .output-content h2, .output-content h3 {
+            margin-top: 1.2em;
+            margin-bottom: 0.6em;
+            color: #333;
+        }
+        
+        .output-content h2 {
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 0.3em;
+        }
+        
+        .output-content ul, .output-content ol {
+            padding-left: 1.5em;
+            margin: 0.5em 0;
+        }
+        
+        .output-content li {
+            margin: 0.3em 0;
+        }
+        
+        .output-content strong {
+            color: #667eea;
+        }
+        
+        .output-content code {
+            background: #e9ecef;
+            padding: 0.1em 0.4em;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        
+        .output-content blockquote {
+            border-left: 4px solid #667eea;
+            padding-left: 1em;
+            color: #666;
+            margin: 0.5em 0;
+        }
+        
+        .copy-btn {
+            float: right;
+            padding: 0.3rem 0.8rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        
+        .copy-btn:hover {
+            background: #5568d3;
         }
         
         .loading {
@@ -601,9 +655,15 @@
     </div>
     
     <script>
+        // API 地址配置：部署时替换为 Render 后端地址
+        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:5000'
+            : 'https://drama-adflow-ai-api.onrender.com';
+
         let selectedTags = [];
         let selectedPlatforms = [];
         let selectedStyles = [];
+        let selectedCopyPlatforms = [];
         
         // 模块切换
         function switchModule(moduleName) {
@@ -652,6 +712,12 @@
                 } else {
                     selectedPlatforms = selectedPlatforms.filter(p => p !== platformName);
                 }
+            } else {
+                if (element.classList.contains('selected')) {
+                    selectedCopyPlatforms.push(platformName);
+                } else {
+                    selectedCopyPlatforms = selectedCopyPlatforms.filter(p => p !== platformName);
+                }
             }
         }
         
@@ -674,39 +740,42 @@
             btnText.innerHTML = '<span class="loading"></span>生成中...';
             document.querySelector('.btn').disabled = true;
             
-            const outputArea = document.getElementById('strategy-output');
-            const outputContent = document.getElementById('strategy-content');
-            outputArea.style.display = 'block';
-            outputContent.textContent = '';
-            
-            try {
-                const response = await fetch('/api/generate-strategy', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        dramaName,
-                        dramaType,
-                        cast,
-                        highlights: selectedTags,
-                        targetAudience,
-                        budget,
-                        duration,
-                        platforms: selectedPlatforms
-                    })
-                });
+                const outputArea = document.getElementById('strategy-output');
+                const outputContent = document.getElementById('strategy-content');
+                outputArea.style.display = 'block';
+                outputContent.textContent = '';
                 
-                const reader = response.body.getReader();
-                const decoder = new TextDecoder();
-                
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) break;
+                try {
+                    const response = await fetch(API_BASE + '/api/generate-strategy', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            dramaName,
+                            dramaType,
+                            cast,
+                            highlights: selectedTags,
+                            targetAudience,
+                            budget,
+                            duration,
+                            platforms: selectedPlatforms
+                        })
+                    });
                     
-                    const chunk = decoder.decode(value);
-                    outputContent.textContent += chunk;
-                }
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder();
+                    let fullText = '';
+                    
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+                        
+                        const chunk = decoder.decode(value, { stream: true });
+                        fullText += chunk;
+                        outputContent.innerHTML = marked.parse(fullText);
+                        outputContent.scrollTop = outputContent.scrollHeight;
+                    }
                 
                 // 更新当前项目信息
                 document.getElementById('current-drama').textContent = dramaName;
@@ -737,34 +806,37 @@
             btnText.innerHTML = '<span class="loading"></span>生成中...';
             btnText.parentElement.disabled = true;
             
-            const outputArea = document.getElementById('copywriting-output');
-            const outputContent = document.getElementById('copywriting-content');
-            outputArea.style.display = 'block';
-            outputContent.textContent = '';
-            
-            try {
-                const response = await fetch('/api/generate-copywriting', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        dramaName,
-                        content,
-                        styles: selectedStyles
-                    })
-                });
+                const outputArea = document.getElementById('copywriting-output');
+                const outputContent = document.getElementById('copywriting-content');
+                outputArea.style.display = 'block';
+                outputContent.textContent = '';
                 
-                const reader = response.body.getReader();
-                const decoder = new TextDecoder();
-                
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) break;
+                try {
+                    const response = await fetch(API_BASE + '/api/generate-copywriting', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            dramaName,
+                            content,
+                            styles: selectedStyles
+                        })
+                    });
                     
-                    const chunk = decoder.decode(value);
-                    outputContent.textContent += chunk;
-                }
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder();
+                    let fullText = '';
+                    
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+                        
+                        const chunk = decoder.decode(value, { stream: true });
+                        fullText += chunk;
+                        outputContent.innerHTML = marked.parse(fullText);
+                        outputContent.scrollTop = outputContent.scrollHeight;
+                    }
                 
             } catch (error) {
                 outputContent.textContent = '生成失败，请检查网络连接或联系管理员';

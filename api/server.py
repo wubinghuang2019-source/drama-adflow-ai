@@ -12,10 +12,11 @@ DASHSCOPE_API_KEY = os.getenv('DASHSCOPE_API_KEY')
 DASHSCOPE_API_URL = 'https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation'
 
 def generate_stream(prompt):
-    """调用阿里云百炼 API 生成流式响应"""
+    """调用阿里云百炼 API 生成流式响应，解析 SSE 格式并输出纯文本"""
     headers = {
         'Authorization': f'Bearer {DASHSCOPE_API_KEY}',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'X-DashScope-SSE': 'enable'
     }
     
     data = {
@@ -24,7 +25,7 @@ def generate_stream(prompt):
             "messages": [
                 {
                     "role": "system",
-                    "content": "你是专业的电视剧营销投流策略专家，擅长制定精准的投流策略、生成吸引人的投放文案。你需要基于剧集特点，给出可落地的营销建议。"
+                    "content": "你是专业的电视剧营销投流策略专家，擅长制定精准的投流策略、生成吸引人的投放文案。你需要基于剧集特点，给出可落地的营销建议。请使用 Markdown 格式输出，让内容结构清晰。"
                 },
                 {
                     "role": "user",
@@ -33,7 +34,8 @@ def generate_stream(prompt):
             ]
         },
         "parameters": {
-            "result_format": "text"
+            "result_format": "message",
+            "incremental_output": True
         }
     }
     
@@ -43,15 +45,28 @@ def generate_stream(prompt):
             headers=headers,
             json=data,
             stream=True,
-            timeout=60
+            timeout=120
         )
+        response.raise_for_status()
         
         for line in response.iter_lines():
-            if line:
-                yield line.decode('utf-8') + '\n'
-                
+            if not line:
+                continue
+            line = line.decode('utf-8')
+            if line.startswith('data:'):
+                data_str = line[5:].strip()
+                if data_str == '[DONE]':
+                    break
+                try:
+                    result = json.loads(data_str)
+                    content = result.get('output', {}).get('choices', [{}])[0].get('message', {}).get('content', '')
+                    if content:
+                        yield content
+                except json.JSONDecodeError:
+                    continue
+                    
     except Exception as e:
-        yield f"Error: {str(e)}"
+        yield f"\n\n❌ 生成出错：{str(e)}"
 
 @app.route('/health', methods=['GET'])
 def health():
