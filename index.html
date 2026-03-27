@@ -655,10 +655,8 @@
     </div>
     
     <script>
-        // API 地址配置：部署时替换为 Render 后端地址
-        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-            ? 'http://localhost:5000'
-            : 'https://drama-adflow-ai-api.onrender.com';
+        // 一体化部署：API 和前端在同一个域名下，无需配置地址
+        const API_BASE = '';
 
         let selectedTags = [];
         let selectedPlatforms = [];
