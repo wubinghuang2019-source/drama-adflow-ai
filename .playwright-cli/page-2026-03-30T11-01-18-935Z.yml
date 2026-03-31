@@ -1,0 +1,94 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e4]: 🎬 电视剧营销投流 AI 工作台
+    - generic [ref=e5]:
+      - button "策略生成" [ref=e6] [cursor=pointer]
+      - button "文案生成" [ref=e7] [cursor=pointer]
+      - button "数据监控" [ref=e8] [cursor=pointer]
+      - button "效果分析" [ref=e9] [cursor=pointer]
+  - generic [ref=e10]:
+    - generic [ref=e11]:
+      - generic [ref=e12]: 当前项目
+      - generic [ref=e13]:
+        - generic [ref=e14]:
+          - generic [ref=e15]: "剧名:"
+          - generic [ref=e16]: "-"
+        - generic [ref=e17]:
+          - generic [ref=e18]: "类型:"
+          - generic [ref=e19]: "-"
+        - generic [ref=e20]:
+          - generic [ref=e21]: "状态:"
+          - generic [ref=e22]: "-"
+      - generic [ref=e23]: 快速操作
+      - generic [ref=e24]:
+        - button "📋 新建投流方案" [ref=e25] [cursor=pointer]
+        - button "✍️ 生成投放文案" [ref=e26] [cursor=pointer]
+        - button "📊 查看数据监控" [ref=e27] [cursor=pointer]
+        - button "📈 效果分析报告" [ref=e28] [cursor=pointer]
+    - generic [ref=e30]:
+      - generic [ref=e31]: 📋 投流策略生成
+      - generic [ref=e32]:
+        - generic [ref=e33]: 剧集基本信息
+        - generic [ref=e34]:
+          - textbox "剧名（如：繁花）" [ref=e35]
+          - combobox [ref=e36]:
+            - option "选择类型" [selected]
+            - option "古装"
+            - option "现代"
+            - option "悬疑"
+            - option "爱情"
+            - option "喜剧"
+            - option "科幻"
+            - option "战争"
+            - option "其他"
+      - generic [ref=e37]:
+        - generic [ref=e38]: 主演阵容
+        - textbox "主演（如：胡歌、马伊琍、唐嫣）" [ref=e39]
+      - generic [ref=e40]:
+        - generic [ref=e41]: 核心看点（可多选）
+        - generic [ref=e42]:
+          - generic [ref=e43] [cursor=pointer]: 剧情精彩
+          - generic [ref=e44] [cursor=pointer]: 演员阵容
+          - generic [ref=e45] [cursor=pointer]: 制作精良
+          - generic [ref=e46] [cursor=pointer]: 话题热度
+          - generic [ref=e47] [cursor=pointer]: 原著IP
+          - generic [ref=e48] [cursor=pointer]: 情感共鸣
+          - generic [ref=e49] [cursor=pointer]: 视觉效果
+          - generic [ref=e50] [cursor=pointer]: 创新题材
+      - generic [ref=e51]:
+        - generic [ref=e52]: 目标受众特征
+        - textbox "描述目标受众特征（如：25-35岁女性，都市白领，喜欢情感剧情，关注时尚潮流）" [ref=e53]
+      - generic [ref=e54]:
+        - generic [ref=e55]: 预算与周期
+        - generic [ref=e56]:
+          - textbox "预算范围（如：50-100万）" [ref=e57]
+          - textbox "投放周期（如：30天）" [ref=e58]
+      - generic [ref=e59]:
+        - generic [ref=e60]: 投放平台（可多选）
+        - generic [ref=e61]:
+          - generic [ref=e62] [cursor=pointer]:
+            - generic [ref=e63]: 🎵
+            - generic [ref=e64]: 抖音
+          - generic [ref=e65] [cursor=pointer]:
+            - generic [ref=e66]: 📕
+            - generic [ref=e67]: 小红书
+          - generic [ref=e68] [cursor=pointer]:
+            - generic [ref=e69]: 📱
+            - generic [ref=e70]: 视频号
+          - generic [ref=e71] [cursor=pointer]:
+            - generic [ref=e72]: 🐦
+            - generic [ref=e73]: 微博
+      - button "生成投流策略" [ref=e74] [cursor=pointer]
+    - generic [ref=e75]:
+      - generic [ref=e76]: 历史方案
+      - generic [ref=e77]:
+        - generic [ref=e78] [cursor=pointer]:
+          - generic [ref=e79]: 繁花 - 投流策略
+          - generic [ref=e80]: 2024-01-15
+        - generic [ref=e81] [cursor=pointer]:
+          - generic [ref=e82]: 繁花 - 第3集文案
+          - generic [ref=e83]: 2024-01-16
+      - generic [ref=e84]: 数据概览
+      - generic [ref=e85]:
+        - generic [ref=e86]: "-"
+        - generic [ref=e87]: 总消耗

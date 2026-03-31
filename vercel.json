@@ -6,6 +6,10 @@
       "use": "@vercel/static"
     },
     {
+      "src": "public/**",
+      "use": "@vercel/static"
+    },
+    {
       "src": "api/generate.py",
       "use": "@vercel/python"
     }
@@ -14,6 +18,10 @@
     {
       "src": "/api/(.*)",
       "dest": "/api/generate.py"
+    },
+    {
+      "src": "/public/(.*)",
+      "dest": "/public/$1"
     },
     {
       "src": "/(.*)",
