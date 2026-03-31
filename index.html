@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>电视剧营销投流 AI 工作台</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
-
         * {
             margin: 0;
             padding: 0;
@@ -15,189 +16,203 @@
         }
 
         :root {
-            --bg-primary: #0a1628;
-            --bg-secondary: #132238;
-            --bg-tertiary: #1e2f4f;
-            --accent-primary: #d4a853;
-            --accent-secondary: #e8c068;
-            --text-primary: #f5f5f7;
-            --text-secondary: #a8b2c1;
-            --text-muted: #6a768a;
-            --border-subtle: rgba(212, 168, 83, 0.15);
-            --border-strong: rgba(212, 168, 83, 0.4);
-            --shadow-glow: rgba(212, 168, 83, 0.12);
+            --bg-base: #FAFBFE;
+            --bg-card: #ffffff;
+            --bg-card-hover: #f8f9fe;
+            --bg-input: #f5f6fa;
+            --bg-sidebar: #f0f2f8;
+            --accent: #53B76F;
+            --accent-light: #62c47f;
+            --accent-dark: #3D9F5A;
+            --accent-glow: rgba(83, 183, 111, 0.15);
+            --pink: #DD7694;
+            --pink-light: #e886a4;
+            --pink-dark: #C9627D;
+            --purple: #7C5CFC;
+            --purple-light: #A78BFA;
+            --teal: #0EA5E9;
+            --text-primary: #262626;
+            --text-secondary: #595959;
+            --text-muted: #9ca3b4;
+            --border: #E8E8E8;
+            --border-focus: #53B76F;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
+            --shadow-lg: 0 12px 40px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
+            --shadow-accent: 0 6px 24px rgba(83, 183, 111, 0.25);
+            --shadow-pink: 0 6px 24px rgba(221, 118, 148, 0.25);
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --radius-xl: 24px;
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
+
         body {
-            font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg-primary);
+            font-family: 'Noto Sans SC', 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-base);
             min-height: 100vh;
             color: var(--text-primary);
-            position: relative;
             overflow-x: hidden;
         }
 
+        /* 背景装饰 - 粉绿色块 */
         body::before {
             content: '';
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background:
-                radial-gradient(ellipse 80% 50% at 20% 40%, rgba(212, 168, 83, 0.08) 0%, transparent 50%),
-                radial-gradient(ellipse 60% 40% at 80% 60%, rgba(30, 47, 79, 0.6) 0%, transparent 50%);
+            top: -200px;
+            right: -200px;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(221, 118, 148, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: -150px;
+            left: -150px;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(83, 183, 111, 0.08) 0%, transparent 70%);
             pointer-events: none;
             z-index: 0;
         }
 
+        /* ===== 顶部导航 ===== */
         .header {
-            background: linear-gradient(135deg, rgba(10, 22, 40, 0.95) 0%, rgba(19, 34, 56, 0.95) 100%);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border-subtle);
-            padding: 1.2rem 3rem;
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 2rem;
             position: sticky;
             top: 0;
             z-index: 1000;
-            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
         }
 
         .header-content {
-            max-width: 1600px;
+            max-width: 1440px;
             margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            height: 64px;
             gap: 2rem;
         }
 
         .logo {
-            font-family: 'Playfair Display', Georgia, serif;
-            font-size: 1.8rem;
-            font-weight: 600;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 700;
             color: var(--text-primary);
-            letter-spacing: -0.02em;
             display: flex;
             align-items: center;
-            gap: 0.8rem;
+            gap: 10px;
+            white-space: nowrap;
+            user-select: none;
         }
 
-        .logo span {
-            color: var(--accent-primary);
+        .logo svg {
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
         }
-        
+
+        .logo-text-highlight {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
         .nav {
             display: flex;
-            gap: 0.8rem;
+            gap: 4px;
+            background: var(--bg-input);
+            border-radius: 12px;
+            padding: 4px;
         }
-        
+
         .nav-item {
-            padding: 0.8rem 1.6rem;
-            border: 1px solid transparent;
+            padding: 8px 20px;
+            border: none;
             background: transparent;
             color: var(--text-secondary);
             cursor: pointer;
-            border-radius: 8px;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            font-size: 0.9rem;
+            border-radius: 9px;
+            transition: var(--transition);
+            font-size: 0.88rem;
             font-weight: 500;
+            font-family: inherit;
             position: relative;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            letter-spacing: 0.02em;
-        }
-
-        .nav-item::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
-            opacity: 0;
-            transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            z-index: 0;
-            transform: translateY(100%);
+            white-space: nowrap;
         }
 
         .nav-item:hover {
-            background: rgba(212, 168, 83, 0.08);
-            color: var(--accent-primary);
-            transform: translateY(-2px);
-        }
-
-        .nav-item:hover::before {
-            opacity: 0.15;
-            transform: translateY(0);
+            color: var(--text-primary);
+            background: rgba(255,255,255,0.7);
         }
 
         .nav-item.active {
-            background: rgba(212, 168, 83, 0.1);
-            border-color: var(--border-strong);
-            color: var(--accent-primary);
+            background: var(--bg-card);
+            color: var(--accent);
+            font-weight: 600;
+            box-shadow: var(--shadow-sm);
         }
 
-        .nav-item.active::before {
-            opacity: 0.08;
-            transform: translateY(0);
-        }
-
-        .nav-item span {
-            position: relative;
-            z-index: 1;
-            pointer-events: none;
-        }
-
+        /* ===== 主容器布局 ===== */
         .container {
-            max-width: 1600px;
-            margin: 2.5rem auto;
-            padding: 0 2.5rem;
+            max-width: 1440px;
+            margin: 1.5rem auto;
+            padding: 0 2rem;
             display: grid;
-            grid-template-columns: 320px 1fr 360px;
-            gap: 2rem;
+            grid-template-columns: 260px 1fr 280px;
+            gap: 1.5rem;
             position: relative;
             z-index: 1;
         }
 
+        /* ===== 左侧边栏 ===== */
         .sidebar {
-            background: linear-gradient(135deg, rgba(19, 34, 56, 0.6) 0%, rgba(30, 47, 79, 0.4) 100%);
-            backdrop-filter: blur(30px);
-            border-radius: 16px;
-            padding: 2rem;
-            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.25);
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
             height: fit-content;
-            border: 1px solid var(--border-subtle);
+            border: 1px solid var(--border);
+            position: sticky;
+            top: 80px;
         }
 
         .sidebar-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
-            color: var(--accent-primary);
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            letter-spacing: -0.01em;
+            font-size: 0.78rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
         }
-        
+
         .project-info {
-            padding: 1.4rem;
-            background: rgba(212, 168, 83, 0.08);
-            border-radius: 12px;
+            padding: 1.2rem;
+            background: linear-gradient(135deg, rgba(221,118,148,0.04) 0%, rgba(83,183,111,0.04) 100%);
+            border-radius: var(--radius-md);
             margin-bottom: 1.5rem;
-            border: 1px solid var(--border-subtle);
+            border: 1px solid rgba(83,183,111,0.1);
         }
 
         .project-info-item {
-            margin-bottom: 0.8rem;
-            font-size: 0.9rem;
+            margin-bottom: 0.7rem;
+            font-size: 0.85rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
+        }
+
+        .project-info-item:last-child {
+            margin-bottom: 0;
         }
 
         .project-info-label {
@@ -206,122 +221,117 @@
         }
 
         .project-info-value {
-            color: var(--accent-primary);
+            color: var(--text-primary);
             font-weight: 600;
-            letter-spacing: 0.01em;
         }
 
         .quick-actions {
             display: flex;
             flex-direction: column;
-            gap: 0.7rem;
+            gap: 6px;
         }
 
         .quick-action-btn {
-            padding: 1.1rem 1.4rem;
+            padding: 10px 14px;
             background: transparent;
             color: var(--text-secondary);
-            border: 1px solid var(--border-subtle);
-            border-radius: 10px;
+            border: none;
+            border-radius: var(--radius-sm);
             cursor: pointer;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 500;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: var(--transition);
             text-align: left;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .quick-action-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
-            opacity: 0;
-            transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            z-index: 0;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .quick-action-btn:hover {
+            background: var(--bg-input);
             color: var(--text-primary);
-            transform: translateX(8px);
-            box-shadow: 0 4px 20px var(--shadow-glow);
+            transform: translateX(4px);
         }
 
-        .quick-action-btn:hover::before {
-            opacity: 0.1;
+        .quick-action-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
         }
 
-        .quick-action-btn span {
-            position: relative;
-            z-index: 1;
-        }
-        
+        .quick-action-btn:nth-child(1) .quick-action-icon { background: rgba(221,118,148,0.1); }
+        .quick-action-btn:nth-child(2) .quick-action-icon { background: rgba(83,183,111,0.1); }
+        .quick-action-btn:nth-child(3) .quick-action-icon { background: rgba(124,92,252,0.1); }
+        .quick-action-btn:nth-child(4) .quick-action-icon { background: rgba(14,165,233,0.1); }
+
+        /* ===== 主内容区 ===== */
         .main-content {
-            background: linear-gradient(135deg, rgba(19, 34, 56, 0.7) 0%, rgba(10, 22, 40, 0.8) 100%);
-            backdrop-filter: blur(30px);
-            border-radius: 20px;
-            padding: 3rem;
-            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.3);
+            background: var(--bg-card);
+            border-radius: var(--radius-xl);
+            padding: 2.5rem;
+            box-shadow: var(--shadow-md);
             min-height: 700px;
-            border: 1px solid var(--border-subtle);
+            border: 1px solid var(--border);
         }
 
         .module-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 2rem;
-            font-weight: 600;
+            font-size: 1.5rem;
+            font-weight: 700;
             color: var(--text-primary);
-            margin-bottom: 2.5rem;
+            margin-bottom: 2rem;
             display: flex;
             align-items: center;
-            gap: 1.2rem;
-            padding-bottom: 1.5rem;
-            border-bottom: 1px solid var(--border-subtle);
-            letter-spacing: -0.02em;
+            gap: 12px;
+            padding-bottom: 1.25rem;
+            border-bottom: 2px solid var(--border);
         }
 
-        .module-title::before {
-            content: '';
-            width: 3px;
-            height: 28px;
-            background: linear-gradient(180deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
-            border-radius: 2px;
+        .module-title-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
         }
 
         .form-group {
-            margin-bottom: 1.6rem;
+            margin-bottom: 1.4rem;
         }
 
         .form-label {
             display: block;
-            margin-bottom: 0.7rem;
-            font-weight: 500;
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
+            margin-bottom: 0.6rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.88rem;
         }
 
         .form-input, .form-textarea, .form-select {
             width: 100%;
-            padding: 1rem 1.2rem;
-            border: 1px solid var(--border-subtle);
-            border-radius: 10px;
-            font-size: 0.95rem;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            background: rgba(10, 22, 40, 0.6);
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 0.92rem;
+            transition: var(--transition);
+            background: var(--bg-input);
             color: var(--text-primary);
+            font-family: inherit;
         }
 
         .form-input:focus, .form-textarea:focus, .form-select:focus {
             outline: none;
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 0 4px rgba(212, 168, 83, 0.1);
-            background: rgba(10, 22, 40, 0.8);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px var(--accent-glow);
+            background: var(--bg-card);
         }
 
         .form-input::placeholder, .form-textarea::placeholder {
@@ -330,19 +340,19 @@
 
         .form-select {
             appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23a8b2c1' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239ca3b4' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
-            background-position: right 1.2rem center;
+            background-position: right 14px center;
             padding-right: 3rem;
         }
 
         .form-select option {
-            background: var(--bg-secondary);
+            background: var(--bg-card);
             color: var(--text-primary);
         }
 
         .form-textarea {
-            min-height: 120px;
+            min-height: 110px;
             resize: vertical;
             line-height: 1.6;
         }
@@ -350,186 +360,166 @@
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 1.2rem;
+            gap: 1rem;
         }
 
+        /* 主操作按钮 */
         .btn {
-            padding: 1.1rem 3rem;
-            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
-            color: var(--text-primary);
+            padding: 13px 32px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            color: #fff;
             border: none;
-            border-radius: 10px;
+            border-radius: var(--radius-sm);
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: 600;
-            letter-spacing: 0.05em;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 4px 20px var(--shadow-glow);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 0%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.2);
-            transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            z-index: 0;
-        }
-
-        .btn:hover::before {
-            width: 100%;
+            transition: var(--transition);
+            box-shadow: var(--shadow-accent);
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 32px var(--shadow-glow);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(255, 107, 53, 0.35);
         }
 
         .btn:active {
-            transform: translateY(-1px);
-            box-shadow: 0 2px 12px var(--shadow-glow);
+            transform: translateY(0);
         }
 
         .btn:disabled {
-            background: var(--bg-tertiary);
+            background: var(--text-muted);
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
-            color: var(--text-muted);
         }
 
         .btn:disabled:hover {
             transform: none;
+            box-shadow: none;
         }
 
         .btn span {
             position: relative;
             z-index: 1;
         }
-        
+
         .btn-secondary {
             background: #6c757d;
+            box-shadow: none;
         }
-        
         .btn-secondary:hover {
             background: #5a6268;
-        }
-        
-        .output-area {
-            margin-top: 2.5rem;
-            padding: 2rem;
-            background: rgba(212, 168, 83, 0.06);
-            border-radius: 16px;
-            border-left: 3px solid var(--accent-primary);
-            animation: slideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: none;
         }
 
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(20px); }
+        /* 输出区域 */
+        .output-area {
+            margin-top: 2rem;
+            padding: 1.8rem;
+            background: linear-gradient(135deg, rgba(255,107,53,0.03) 0%, rgba(124,92,252,0.03) 100%);
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(255,107,53,0.1);
+            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(16px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         .output-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.4rem;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
-            color: var(--accent-primary);
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 1.2rem;
+            color: var(--text-primary);
             display: flex;
             align-items: center;
-            gap: 0.8rem;
-            letter-spacing: -0.01em;
+            gap: 10px;
         }
 
         .output-content {
             white-space: pre-wrap;
-            line-height: 1.95;
+            line-height: 1.9;
             color: var(--text-primary);
-            font-size: 0.95rem;
+            font-size: 0.92rem;
         }
 
         .output-content h1, .output-content h2, .output-content h3 {
-            margin-top: 1.8em;
-            margin-bottom: 0.9em;
-            color: var(--text-primary);
-            font-weight: 600;
+            margin-top: 1.6em;
+            margin-bottom: 0.8em;
+            font-weight: 700;
         }
 
         .output-content h1 {
-            font-size: 1.9em;
-            color: var(--accent-primary);
+            font-size: 1.7em;
+            color: var(--accent);
         }
 
         .output-content h2 {
-            font-size: 1.5em;
-            padding-bottom: 0.5em;
-            border-bottom: 1px solid var(--border-subtle);
+            font-size: 1.35em;
+            padding-bottom: 0.4em;
+            border-bottom: 1px solid var(--border);
         }
 
         .output-content h3 {
-            font-size: 1.25em;
+            font-size: 1.15em;
             color: var(--text-secondary);
         }
 
         .output-content ul, .output-content ol {
-            padding-left: 1.8em;
-            margin: 0.8em 0;
+            padding-left: 1.6em;
+            margin: 0.7em 0;
         }
 
         .output-content li {
-            margin: 0.5em 0;
+            margin: 0.4em 0;
         }
 
         .output-content strong {
-            color: var(--accent-primary);
+            color: var(--accent-dark);
             font-weight: 600;
         }
 
         .output-content code {
-            background: rgba(212, 168, 83, 0.12);
-            padding: 0.2em 0.6em;
+            background: rgba(255,107,53,0.08);
+            padding: 0.15em 0.5em;
             border-radius: 4px;
-            font-size: 0.9em;
-            color: var(--accent-primary);
+            font-size: 0.88em;
+            color: var(--accent-dark);
         }
 
         .output-content blockquote {
-            border-left: 3px solid var(--accent-primary);
-            padding-left: 1.4em;
+            border-left: 3px solid var(--accent);
+            padding: 0.8em 1.2em;
             color: var(--text-secondary);
             margin: 1em 0;
-            background: rgba(212, 168, 83, 0.04);
-            padding: 1em 1.4em;
-            border-radius: 4px;
+            background: rgba(255,107,53,0.03);
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
         }
 
         .output-content table {
             width: 100%;
             border-collapse: collapse;
-            margin: 1.2em 0;
-            background: rgba(19, 34, 56, 0.4);
-            border-radius: 12px;
+            margin: 1em 0;
+            border-radius: var(--radius-sm);
             overflow: hidden;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+            box-shadow: var(--shadow-sm);
         }
 
         .output-content th, .output-content td {
-            padding: 1em 1.2em;
+            padding: 0.8em 1em;
             text-align: left;
-            border-bottom: 1px solid var(--border-subtle);
+            border-bottom: 1px solid var(--border);
         }
 
         .output-content th {
-            background: rgba(212, 168, 83, 0.1);
+            background: var(--bg-input);
             font-weight: 600;
-            color: var(--accent-primary);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
+            color: var(--text-primary);
             font-size: 0.85em;
         }
 
@@ -539,300 +529,375 @@
 
         .copy-btn {
             float: right;
-            padding: 0.6rem 1.4rem;
-            background: rgba(212, 168, 83, 0.1);
-            color: var(--accent-primary);
-            border: 1px solid var(--border-subtle);
-            border-radius: 8px;
+            padding: 6px 14px;
+            background: var(--bg-input);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
             cursor: pointer;
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             font-weight: 500;
-            letter-spacing: 0.05em;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: var(--transition);
+            font-family: inherit;
         }
 
         .copy-btn:hover {
-            background: rgba(212, 168, 83, 0.15);
-            transform: translateY(-2px);
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
         }
-        
+
         .loading {
             display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-top: 3px solid white;
+            width: 18px;
+            height: 18px;
+            border: 2.5px solid rgba(255,255,255,0.3);
+            border-top: 2.5px solid #fff;
             border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin-right: 0.5rem;
+            animation: spin 0.7s linear infinite;
+            margin-right: 0.4rem;
         }
 
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        
+
+        /* ===== 右侧边栏 ===== */
         .right-sidebar {
-            background: linear-gradient(135deg, rgba(19, 34, 56, 0.5) 0%, rgba(30, 47, 79, 0.3) 100%);
-            backdrop-filter: blur(30px);
-            border-radius: 16px;
-            padding: 2rem;
-            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.25);
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
             height: fit-content;
-            border: 1px solid var(--border-subtle);
+            border: 1px solid var(--border);
+            position: sticky;
+            top: 80px;
         }
 
         .history-item {
-            padding: 1.2rem;
-            background: rgba(212, 168, 83, 0.05);
-            border-radius: 12px;
-            margin-bottom: 0.8rem;
+            padding: 1rem 1.2rem;
+            background: var(--bg-input);
+            border-radius: var(--radius-sm);
+            margin-bottom: 0.6rem;
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: var(--transition);
             border: 1px solid transparent;
         }
 
         .history-item:hover {
-            background: rgba(212, 168, 83, 0.1);
-            transform: translateX(8px);
-            box-shadow: 0 4px 20px rgba(212, 168, 83, 0.15);
-            border-color: var(--border-subtle);
+            background: var(--bg-card-hover);
+            border-color: var(--border);
+            transform: translateX(4px);
         }
 
         .history-item-title {
-            font-size: 0.95rem;
-            font-weight: 500;
+            font-size: 0.88rem;
+            font-weight: 600;
             color: var(--text-primary);
-            margin-bottom: 0.4rem;
+            margin-bottom: 0.3rem;
         }
 
         .history-item-date {
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             color: var(--text-muted);
         }
 
         .data-overview {
-            padding: 2rem;
-            background: rgba(212, 168, 83, 0.08);
-            border-radius: 12px;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(255,107,53,0.05) 0%, rgba(14,165,233,0.05) 100%);
+            border-radius: var(--radius-md);
             text-align: center;
-            border: 1px solid var(--border-subtle);
+            border: 1px solid rgba(255,107,53,0.08);
         }
 
         .data-overview-value {
-            font-family: 'Playfair Display', serif;
-            font-size: 2.8rem;
-            font-weight: 600;
-            color: var(--accent-primary);
-            margin-bottom: 0.6rem;
-            letter-spacing: -0.02em;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 0.4rem;
         }
 
         .data-overview-label {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
+            font-size: 0.82rem;
+            color: var(--text-muted);
             font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
         }
-        
-        /* 模块切换 */
-        .module {
-            display: none;
-        }
-        
-        .module.active {
-            display: block;
-        }
-        
-        /* 标签选择器 */
+
+        /* ===== 模块切换 ===== */
+        .module { display: none; }
+        .module.active { display: block; }
+
+        /* ===== 标签选择器 ===== */
         .tag-selector {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.8rem;
-            margin-top: 0.8rem;
+            gap: 8px;
+            margin-top: 0.6rem;
         }
 
         .tag {
-            padding: 0.7rem 1.5rem;
-            background: rgba(10, 22, 40, 0.6);
-            border: 1px solid var(--border-subtle);
-            border-radius: 30px;
+            padding: 8px 18px;
+            background: var(--bg-input);
+            border: 2px solid transparent;
+            border-radius: 100px;
             cursor: pointer;
-            font-size: 0.85rem;
+            font-size: 0.84rem;
             font-weight: 500;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
-            overflow: hidden;
-            display: inline-block;
-            letter-spacing: 0.02em;
-        }
-
-        .tag::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
-            opacity: 0;
-            transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            border-radius: 30px;
-            z-index: 0;
+            transition: var(--transition);
+            color: var(--text-secondary);
+            user-select: none;
+            font-family: inherit;
         }
 
         .tag:hover {
-            background: rgba(212, 168, 83, 0.1);
-            transform: translateY(-2px);
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(255,107,53,0.04);
         }
 
         .tag.selected {
-            background: transparent;
-            border-color: var(--accent-primary);
-            color: var(--accent-primary);
-            box-shadow: 0 4px 16px var(--shadow-glow);
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+            box-shadow: 0 2px 10px rgba(255,107,53,0.3);
         }
 
-        .tag.selected::before {
-            opacity: 0.1;
-        }
-
-        .tag span {
-            position: relative;
-            z-index: 1;
-            pointer-events: none;
-        }
-
-        /* 平台选择器 */
+        /* ===== 平台选择器 ===== */
         .platform-selector {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1.5rem;
-            margin: 1.5rem 0;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin: 1rem 0;
         }
 
         .platform-card {
-            padding: 2rem;
-            background: rgba(10, 22, 40, 0.5);
-            border: 1px solid var(--border-subtle);
-            border-radius: 20px;
+            padding: 1.4rem 1rem;
+            background: var(--bg-input);
+            border: 2px solid transparent;
+            border-radius: var(--radius-md);
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: var(--transition);
             text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .platform-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
-            opacity: 0;
-            transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            border-radius: 20px;
-            z-index: 0;
         }
 
         .platform-card:hover {
-            background: rgba(212, 168, 83, 0.08);
-            transform: translateY(-6px);
-            box-shadow: 0 12px 36px var(--shadow-glow);
+            border-color: var(--accent);
+            background: rgba(255,107,53,0.03);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
         }
 
         .platform-card.selected {
-            background: transparent;
-            border-color: var(--accent-primary);
-            color: var(--accent-primary);
-            box-shadow: 0 12px 48px var(--shadow-glow);
-            transform: translateY(-6px);
-        }
-
-        .platform-card.selected::before {
-            opacity: 0.08;
-        }
-
-        .platform-icon, .platform-name {
-            position: relative;
-            z-index: 1;
-            pointer-events: none;
+            border-color: var(--accent);
+            background: rgba(255,107,53,0.05);
+            box-shadow: 0 4px 16px rgba(255,107,53,0.15);
+            transform: translateY(-4px);
         }
 
         .platform-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
+            font-size: 2rem;
+            margin-bottom: 0.6rem;
             display: block;
         }
 
         .platform-name {
-            font-size: 1.05rem;
+            font-size: 0.85rem;
             font-weight: 600;
-            letter-spacing: 0.02em;
+            color: var(--text-primary);
         }
-        
-        /* 响应式设计 */
+
+        .platform-card.selected .platform-name {
+            color: var(--accent);
+        }
+
+        /* ===== 响应式 ===== */
         @media (max-width: 1200px) {
             .container {
                 grid-template-columns: 1fr;
             }
-            
             .sidebar, .right-sidebar {
+                position: static;
                 order: -1;
             }
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                height: auto;
+                flex-wrap: wrap;
+                padding: 12px 0;
+                gap: 10px;
+            }
+            .nav {
+                width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            .container {
+                padding: 0 1rem;
+            }
+            .main-content {
+                padding: 1.5rem;
+            }
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            .platform-selector {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* ===== 开发中占位 ===== */
+        .coming-soon {
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+        .coming-soon-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.6;
+        }
+        .coming-soon h3 {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+        .coming-soon p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.6;
         }
     </style>
 </head>
 <body>
     <div class="header">
         <div class="header-content">
-            <div class="logo"><span>🎬</span> 电视剧营销投流 AI 工作台</div>
+            <div class="logo">
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <!-- 底座 - 带颜色呼吸 -->
+                    <rect x="20" y="55" width="60" height="30" rx="3" fill="#53B76F">
+                        <animate attributeName="fill" values="#53B76F;#62c47f;#53B76F" dur="2.5s" repeatCount="indefinite"/>
+                    </rect>
+                    <!-- 导演板主体 - 带轻微晃动 -->
+                    <g transform="rotate(-15 50 40)">
+                        <animateTransform attributeName="transform" type="rotate" values="-15 50 40;-13 50 40;-15 50 40" dur="4s" repeatCount="indefinite"/>
+                        <rect x="15" y="30" width="70" height="20" rx="2" fill="#DD7694">
+                            <animate attributeName="fill" values="#DD7694;#e886a4;#DD7694" dur="2.5s" repeatCount="indefinite"/>
+                        </rect>
+                        <!-- 黑白条纹 - 波浪闪烁 -->
+                        <rect x="20" y="32" width="8" height="16" fill="white">
+                            <animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite" begin="0s"/>
+                        </rect>
+                        <rect x="31" y="32" width="8" height="16" fill="white">
+                            <animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite" begin="0.3s"/>
+                        </rect>
+                        <rect x="42" y="32" width="8" height="16" fill="white">
+                            <animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite" begin="0.6s"/>
+                        </rect>
+                        <rect x="53" y="32" width="8" height="16" fill="white">
+                            <animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite" begin="0.9s"/>
+                        </rect>
+                        <rect x="64" y="32" width="8" height="16" fill="white">
+                            <animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite" begin="1.2s"/>
+                        </rect>
+                        <rect x="75" y="32" width="8" height="16" fill="white">
+                            <animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite" begin="1.5s"/>
+                        </rect>
+                    </g>
+                    <!-- 螺丝钉 - 轻微脉冲 -->
+                    <circle cx="22" cy="55" r="3" fill="#262626">
+                        <animate attributeName="r" values="3;3.3;3" dur="2s" repeatCount="indefinite"/>
+                    </circle>
+                    <circle cx="78" cy="55" r="3" fill="#262626">
+                        <animate attributeName="r" values="3;3.3;3" dur="2s" repeatCount="indefinite"/>
+                    </circle>
+                    <!-- 底座纹理 - 呼吸 -->
+                    <rect x="28" y="63" width="44" height="3" rx="1.5" fill="white" opacity="0.3">
+                        <animate attributeName="opacity" values="0.3;0.7;0.3" dur="2.5s" repeatCount="indefinite"/>
+                    </rect>
+                    <rect x="28" y="70" width="30" height="3" rx="1.5" fill="white" opacity="0.3">
+                        <animate attributeName="opacity" values="0.3;0.7;0.3" dur="3s" repeatCount="indefinite"/>
+                    </rect>
+                    <!-- 装饰星星 - 柔和闪烁 -->
+                    <circle cx="15" cy="22" r="2" fill="#DD7694" opacity="0.7">
+                        <animate attributeName="opacity" values="0.7;0.2;0.7" dur="2s" repeatCount="indefinite"/>
+                        <animate attributeName="r" values="2;2.3;2" dur="2s" repeatCount="indefinite"/>
+                    </circle>
+                    <circle cx="85" cy="25" r="1.8" fill="#53B76F" opacity="0.6">
+                        <animate attributeName="opacity" values="0.6;0.15;0.6" dur="2.3s" repeatCount="indefinite"/>
+                        <animate attributeName="r" values="1.8;2.1;1.8" dur="2.3s" repeatCount="indefinite"/>
+                    </circle>
+                    <circle cx="13" cy="80" r="1.6" fill="#DD7694" opacity="0.65">
+                        <animate attributeName="opacity" values="0.65;0.15;0.65" dur="2.5s" repeatCount="indefinite"/>
+                        <animate attributeName="r" values="1.6;1.9;1.6" dur="2.5s" repeatCount="indefinite"/>
+                    </circle>
+                    <circle cx="88" cy="78" r="1.5" fill="#53B76F" opacity="0.55">
+                        <animate attributeName="opacity" values="0.55;0.1;0.55" dur="2.8s" repeatCount="indefinite"/>
+                        <animate attributeName="r" values="1.5;1.8;1.5" dur="2.8s" repeatCount="indefinite"/>
+                    </circle>
+                </svg>
+                <span>营销投流<span class="logo-text-highlight">AI</span> 工作台</span>
+            </div>
             <div class="nav">
-                <button class="nav-item active" onclick="switchModule('strategy')">策略生成</button>
-                <button class="nav-item" onclick="switchModule('copywriting')">文案生成</button>
-                <button class="nav-item" onclick="switchModule('monitor')">数据监控</button>
-                <button class="nav-item" onclick="switchModule('analysis')">效果分析</button>
+                <button class="nav-item active" onclick="switchModule('strategy', this)">策略生成</button>
+                <button class="nav-item" onclick="switchModule('copywriting', this)">文案生成</button>
+                <button class="nav-item" onclick="switchModule('monitor', this)">数据监控</button>
+                <button class="nav-item" onclick="switchModule('analysis', this)">效果分析</button>
             </div>
         </div>
     </div>
-    
+
     <div class="container">
         <!-- 左侧边栏 -->
         <div class="sidebar">
             <div class="sidebar-title">当前项目</div>
             <div class="project-info">
                 <div class="project-info-item">
-                    <span class="project-info-label">剧名:</span>
+                    <span class="project-info-label">剧名</span>
                     <span id="current-drama">-</span>
                 </div>
                 <div class="project-info-item">
-                    <span class="project-info-label">类型:</span>
+                    <span class="project-info-label">类型</span>
                     <span id="current-type">-</span>
                 </div>
                 <div class="project-info-item">
-                    <span class="project-info-label">状态:</span>
+                    <span class="project-info-label">状态</span>
                     <span id="current-status">-</span>
                 </div>
             </div>
-            
+
             <div class="sidebar-title">快速操作</div>
             <div class="quick-actions">
-                <button class="quick-action-btn" onclick="switchModule('strategy')">📋 新建投流方案</button>
-                <button class="quick-action-btn" onclick="switchModule('copywriting')">✍️ 生成投放文案</button>
-                <button class="quick-action-btn" onclick="switchModule('monitor')">📊 查看数据监控</button>
-                <button class="quick-action-btn" onclick="switchModule('analysis')">📈 效果分析报告</button>
+                <button class="quick-action-btn" onclick="switchModule('strategy', document.querySelectorAll('.nav-item')[0])">
+                    <span class="quick-action-icon">📋</span>
+                    新建投流方案
+                </button>
+                <button class="quick-action-btn" onclick="switchModule('copywriting', document.querySelectorAll('.nav-item')[1])">
+                    <span class="quick-action-icon">✍️</span>
+                    生成投放文案
+                </button>
+                <button class="quick-action-btn" onclick="switchModule('monitor', document.querySelectorAll('.nav-item')[2])">
+                    <span class="quick-action-icon">📊</span>
+                    查看数据监控
+                </button>
+                <button class="quick-action-btn" onclick="switchModule('analysis', document.querySelectorAll('.nav-item')[3])">
+                    <span class="quick-action-icon">📈</span>
+                    效果分析报告
+                </button>
             </div>
         </div>
-        
+
         <!-- 主内容区 -->
         <div class="main-content">
             <!-- 策略生成模块 -->
             <div id="strategy-module" class="module active">
-                <div class="module-title">📋 投流策略生成</div>
-                
+                <div class="module-title">
+                    <span class="module-title-icon" style="background: rgba(255,107,53,0.1);">📋</span>
+                    投流策略生成
+                </div>
+
                 <div class="form-group">
                     <label class="form-label">剧集基本信息</label>
                     <div class="form-row">
@@ -850,12 +915,12 @@
                         </select>
                     </div>
                 </div>
-                
+
                 <div class="form-group">
                     <label class="form-label">主演阵容</label>
                     <input type="text" class="form-input" id="drama-cast" placeholder="主演（如：胡歌、马伊琍、唐嫣）">
                 </div>
-                
+
                 <div class="form-group">
                     <label class="form-label">核心看点（可多选）</label>
                     <div class="tag-selector" id="highlight-tags">
@@ -869,12 +934,12 @@
                         <div class="tag" onclick="toggleTag(this)">创新题材</div>
                     </div>
                 </div>
-                
+
                 <div class="form-group">
                     <label class="form-label">目标受众特征</label>
                     <textarea class="form-textarea" id="target-audience" placeholder="描述目标受众特征（如：25-35岁女性，都市白领，喜欢情感剧情，关注时尚潮流）"></textarea>
                 </div>
-                
+
                 <div class="form-group">
                     <label class="form-label">预算与周期</label>
                     <div class="form-row">
@@ -882,53 +947,57 @@
                         <input type="text" class="form-input" id="duration" placeholder="投放周期（如：30天）">
                     </div>
                 </div>
-                
+
                 <div class="form-group">
                     <label class="form-label">投放平台（可多选）</label>
                     <div class="platform-selector">
                         <div class="platform-card" onclick="togglePlatform(this)">
-                            <div class="platform-icon">🎵</div>
-                            <div class="platform-name">抖音</div>
+                            <span class="platform-icon">🎵</span>
+                            <span class="platform-name">抖音</span>
                         </div>
                         <div class="platform-card" onclick="togglePlatform(this)">
-                            <div class="platform-icon">📕</div>
-                            <div class="platform-name">小红书</div>
+                            <span class="platform-icon">📕</span>
+                            <span class="platform-name">小红书</span>
                         </div>
                         <div class="platform-card" onclick="togglePlatform(this)">
-                            <div class="platform-icon">📱</div>
-                            <div class="platform-name">视频号</div>
+                            <span class="platform-icon">📱</span>
+                            <span class="platform-name">视频号</span>
                         </div>
                         <div class="platform-card" onclick="togglePlatform(this)">
-                            <div class="platform-icon">🐦</div>
-                            <div class="platform-name">微博</div>
+                            <span class="platform-icon">🐦</span>
+                            <span class="platform-name">微博</span>
                         </div>
                     </div>
                 </div>
-                
+
                 <button class="btn" onclick="generateStrategy()">
                     <span id="strategy-btn-text">生成投流策略</span>
                 </button>
-                
+
                 <div class="output-area" id="strategy-output" style="display: none;">
                     <div class="output-title">📊 投流策略方案</div>
+                    <button class="copy-btn" onclick="copyContent('strategy-content')">复制</button>
                     <div class="output-content" id="strategy-content"></div>
                 </div>
             </div>
-            
+
             <!-- 文案生成模块 -->
             <div id="copywriting-module" class="module">
-                <div class="module-title">✍️ 投放文案生成</div>
-                
+                <div class="module-title">
+                    <span class="module-title-icon" style="background: rgba(124,92,252,0.1);">✍️</span>
+                    投放文案生成
+                </div>
+
                 <div class="form-group">
                     <label class="form-label">剧集信息</label>
                     <input type="text" class="form-input" id="copy-drama-name" placeholder="剧名">
                 </div>
-                
+
                 <div class="form-group">
                     <label class="form-label">素材内容/看点</label>
                     <textarea class="form-textarea" id="copy-content" placeholder="描述素材内容或剧集看点（如：第3集高能剧情，男主终于表白，情感爆发）"></textarea>
                 </div>
-                
+
                 <div class="form-group">
                     <label class="form-label">文案风格</label>
                     <div class="tag-selector" id="style-tags">
@@ -940,54 +1009,67 @@
                         <div class="tag" onclick="toggleTag(this)">现实扎心</div>
                     </div>
                 </div>
-                
+
                 <div class="form-group">
                     <label class="form-label">投放平台（可多选）</label>
                     <div class="platform-selector">
                         <div class="platform-card" onclick="togglePlatform(this, 'copy')">
-                            <div class="platform-icon">🎵</div>
-                            <div class="platform-name">抖音</div>
+                            <span class="platform-icon">🎵</span>
+                            <span class="platform-name">抖音</span>
                         </div>
                         <div class="platform-card" onclick="togglePlatform(this, 'copy')">
-                            <div class="platform-icon">📕</div>
-                            <div class="platform-name">小红书</div>
+                            <span class="platform-icon">📕</span>
+                            <span class="platform-name">小红书</span>
                         </div>
                         <div class="platform-card" onclick="togglePlatform(this, 'copy')">
-                            <div class="platform-icon">📱</div>
-                            <div class="platform-name">视频号</div>
+                            <span class="platform-icon">📱</span>
+                            <span class="platform-name">视频号</span>
                         </div>
                         <div class="platform-card" onclick="togglePlatform(this, 'copy')">
-                            <div class="platform-icon">🐦</div>
-                            <div class="platform-name">微博</div>
+                            <span class="platform-icon">🐦</span>
+                            <span class="platform-name">微博</span>
                         </div>
                     </div>
                 </div>
-                
+
                 <button class="btn" onclick="generateCopywriting()">
                     <span id="copy-btn-text">生成投放文案</span>
                 </button>
-                
+
                 <div class="output-area" id="copywriting-output" style="display: none;">
                     <div class="output-title">📝 多平台文案</div>
+                    <button class="copy-btn" onclick="copyContent('copywriting-content')">复制</button>
                     <div class="output-content" id="copywriting-content"></div>
                 </div>
             </div>
-            
+
             <!-- 数据监控模块 -->
             <div id="monitor-module" class="module">
-                <div class="module-title">📊 投放数据监控</div>
-                <p style="color: #666; margin: 2rem 0;">数据监控功能正在开发中，敬请期待...</p>
-                <p style="color: #999; font-size: 0.9rem;">将支持：抖音、小红书、视频号、微博四大平台的实时数据监控和可视化分析</p>
+                <div class="module-title">
+                    <span class="module-title-icon" style="background: rgba(14,165,233,0.1);">📊</span>
+                    投放数据监控
+                </div>
+                <div class="coming-soon">
+                    <div class="coming-soon-icon">🚧</div>
+                    <h3>数据监控功能正在开发中</h3>
+                    <p>将支持抖音、小红书、视频号、微博四大平台<br>实时数据监控和可视化分析</p>
+                </div>
             </div>
-            
+
             <!-- 效果分析模块 -->
             <div id="analysis-module" class="module">
-                <div class="module-title">📈 效果分析报告</div>
-                <p style="color: #666; margin: 2rem 0;">效果分析功能正在开发中，敬请期待...</p>
-                <p style="color: #999; font-size: 0.9rem;">将支持：素材效果分析、用户行为分析、ROI计算、优化建议生成</p>
+                <div class="module-title">
+                    <span class="module-title-icon" style="background: rgba(34,197,94,0.1);">📈</span>
+                    效果分析报告
+                </div>
+                <div class="coming-soon">
+                    <div class="coming-soon-icon">🚧</div>
+                    <h3>效果分析功能正在开发中</h3>
+                    <p>将支持素材效果分析、用户行为分析<br>ROI计算、优化建议生成</p>
+                </div>
             </div>
         </div>
-        
+
         <!-- 右侧边栏 -->
         <div class="right-sidebar">
             <div class="sidebar-title">历史方案</div>
@@ -1001,45 +1083,47 @@
                     <div class="history-item-date">2024-01-16</div>
                 </div>
             </div>
-            
-            <div class="sidebar-title" style="margin-top: 2rem;">数据概览</div>
+
+            <div class="sidebar-title" style="margin-top: 1.5rem;">数据概览</div>
             <div class="data-overview">
                 <div class="data-overview-value">-</div>
                 <div class="data-overview-label">总消耗</div>
             </div>
         </div>
     </div>
-    
+
     <script>
-        // 一体化部署：API 和前端在同一个域名下，无需配置地址
         const API_BASE = '';
 
         let selectedTags = [];
         let selectedPlatforms = [];
         let selectedStyles = [];
         let selectedCopyPlatforms = [];
-        
-        // 模块切换
-        function switchModule(moduleName) {
-            // 更新导航
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            
-            // 切换模块
-            document.querySelectorAll('.module').forEach(module => {
-                module.classList.remove('active');
-            });
+
+        // 模块切换 - 修复：传入 button 引用
+        function switchModule(moduleName, btn) {
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            if (btn) {
+                btn.classList.add('active');
+            } else {
+                // fallback
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    if (item.textContent.trim() === {strategy:'策略生成',copywriting:'文案生成',monitor:'数据监控',analysis:'效果分析'}[moduleName]) {
+                        item.classList.add('active');
+                    }
+                });
+            }
+
+            document.querySelectorAll('.module').forEach(module => module.classList.remove('active'));
             document.getElementById(moduleName + '-module').classList.add('active');
         }
-        
+
         // 标签切换
         function toggleTag(element) {
             element.classList.toggle('selected');
-            const tagText = element.textContent;
+            const tagText = element.textContent.trim();
             const parent = element.parentElement;
-            
+
             if (parent.id === 'highlight-tags') {
                 if (element.classList.contains('selected')) {
                     selectedTags.push(tagText);
@@ -1054,12 +1138,12 @@
                 }
             }
         }
-        
+
         // 平台选择
         function togglePlatform(element, type = 'strategy') {
             element.classList.toggle('selected');
             const platformName = element.querySelector('.platform-name').textContent;
-            
+
             if (type === 'strategy') {
                 if (element.classList.contains('selected')) {
                     selectedPlatforms.push(platformName);
@@ -1074,7 +1158,18 @@
                 }
             }
         }
-        
+
+        // 复制内容
+        function copyContent(id) {
+            const el = document.getElementById(id);
+            const text = el.innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = el.parentElement.querySelector('.copy-btn');
+                btn.textContent = '已复制';
+                setTimeout(() => btn.textContent = '复制', 1500);
+            });
+        }
+
         // 生成策略
         async function generateStrategy() {
             const dramaName = document.getElementById('drama-name').value;
@@ -1083,121 +1178,109 @@
             const targetAudience = document.getElementById('target-audience').value;
             const budget = document.getElementById('budget').value;
             const duration = document.getElementById('duration').value;
-            
+
             if (!dramaName || !dramaType || selectedPlatforms.length === 0) {
                 alert('请填写剧名、类型并选择至少一个投放平台');
                 return;
             }
-            
+
             const btnText = document.getElementById('strategy-btn-text');
             const originalText = btnText.textContent;
             btnText.innerHTML = '<span class="loading"></span>生成中...';
-            document.querySelector('.btn').disabled = true;
-            
-                const outputArea = document.getElementById('strategy-output');
-                const outputContent = document.getElementById('strategy-content');
-                outputArea.style.display = 'block';
-                outputContent.textContent = '';
-                
-                try {
-                    const response = await fetch(API_BASE + '/api/generate-strategy', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            dramaName,
-                            dramaType,
-                            cast,
-                            highlights: selectedTags,
-                            targetAudience,
-                            budget,
-                            duration,
-                            platforms: selectedPlatforms
-                        })
-                    });
-                    
-                    const reader = response.body.getReader();
-                    const decoder = new TextDecoder();
-                    let fullText = '';
-                    
-                    while (true) {
-                        const { done, value } = await reader.read();
-                        if (done) break;
-                        
-                        const chunk = decoder.decode(value, { stream: true });
-                        fullText += chunk;
-                        outputContent.innerHTML = marked.parse(fullText);
-                        outputContent.scrollTop = outputContent.scrollHeight;
-                    }
-                
-                // 更新当前项目信息
+            document.querySelector('#strategy-module .btn').disabled = true;
+
+            const outputArea = document.getElementById('strategy-output');
+            const outputContent = document.getElementById('strategy-content');
+            outputArea.style.display = 'block';
+            outputContent.textContent = '';
+
+            try {
+                const response = await fetch(API_BASE + '/api/generate-strategy', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        dramaName, dramaType, cast,
+                        highlights: selectedTags,
+                        targetAudience, budget, duration,
+                        platforms: selectedPlatforms
+                    })
+                });
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let fullText = '';
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    const chunk = decoder.decode(value, { stream: true });
+                    fullText += chunk;
+                    outputContent.innerHTML = marked.parse(fullText);
+                    outputContent.scrollTop = outputContent.scrollHeight;
+                }
+
                 document.getElementById('current-drama').textContent = dramaName;
                 document.getElementById('current-type').textContent = dramaType;
                 document.getElementById('current-status').textContent = '投放中';
-                
+
             } catch (error) {
                 outputContent.textContent = '生成失败，请检查网络连接或联系管理员';
                 console.error('Error:', error);
             }
-            
+
             btnText.textContent = originalText;
-            document.querySelector('.btn').disabled = false;
+            document.querySelector('#strategy-module .btn').disabled = false;
         }
-        
+
         // 生成文案
         async function generateCopywriting() {
             const dramaName = document.getElementById('copy-drama-name').value;
             const content = document.getElementById('copy-content').value;
-            
+
             if (!dramaName || !content) {
                 alert('请填写剧名和素材内容');
                 return;
             }
-            
+
             const btnText = document.getElementById('copy-btn-text');
             const originalText = btnText.textContent;
             btnText.innerHTML = '<span class="loading"></span>生成中...';
             btnText.parentElement.disabled = true;
-            
-                const outputArea = document.getElementById('copywriting-output');
-                const outputContent = document.getElementById('copywriting-content');
-                outputArea.style.display = 'block';
-                outputContent.textContent = '';
-                
-                try {
-                    const response = await fetch(API_BASE + '/api/generate-copywriting', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            dramaName,
-                            content,
-                            styles: selectedStyles,
-                            platforms: selectedCopyPlatforms
-                        })
-                    });
-                    
-                    const reader = response.body.getReader();
-                    const decoder = new TextDecoder();
-                    let fullText = '';
-                    
-                    while (true) {
-                        const { done, value } = await reader.read();
-                        if (done) break;
-                        
-                        const chunk = decoder.decode(value, { stream: true });
-                        fullText += chunk;
-                        outputContent.innerHTML = marked.parse(fullText);
-                        outputContent.scrollTop = outputContent.scrollHeight;
-                    }
-                
+
+            const outputArea = document.getElementById('copywriting-output');
+            const outputContent = document.getElementById('copywriting-content');
+            outputArea.style.display = 'block';
+            outputContent.textContent = '';
+
+            try {
+                const response = await fetch(API_BASE + '/api/generate-copywriting', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        dramaName, content,
+                        styles: selectedStyles,
+                        platforms: selectedCopyPlatforms
+                    })
+                });
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let fullText = '';
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    const chunk = decoder.decode(value, { stream: true });
+                    fullText += chunk;
+                    outputContent.innerHTML = marked.parse(fullText);
+                    outputContent.scrollTop = outputContent.scrollHeight;
+                }
+
             } catch (error) {
                 outputContent.textContent = '生成失败，请检查网络连接或联系管理员';
                 console.error('Error:', error);
             }
-            
+
             btnText.textContent = originalText;
             btnText.parentElement.disabled = false;
         }
