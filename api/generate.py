@@ -27,14 +27,18 @@ class handler(BaseHTTPRequestHandler):
 
         if self.path == '/api/generate-strategy':
             prompt = self._build_strategy_prompt(data)
+            self._stream_response(prompt)
         elif self.path == '/api/generate-copywriting':
             prompt = self._build_copywriting_prompt(data)
+            self._stream_response(prompt)
+        elif self.path == '/api/search-accounts':
+            prompt = self._build_account_search_prompt(data)
+            self._stream_response(prompt)
+        elif self.path == '/api/generate-analysis':
+            prompt = self._build_analysis_prompt(data)
+            self._stream_response(prompt)
         else:
             self._send_json(404, {'error': 'Not found'})
-            return
-
-        # 调用阿里云 API 并流式返回
-        self._stream_response(prompt)
 
     def _build_strategy_prompt(self, data):
         platforms = data.get('platforms', ['抖音', '小红书', '视频号', '微博'])
@@ -438,6 +442,166 @@ class handler(BaseHTTPRequestHandler):
 4. **差异化明显**：每个平台的文案风格要鲜明区别
 
 请开始生成，直接输出文案内容，不要解释说明。"""
+
+        return prompt
+
+    def _build_account_search_prompt(self, data):
+        keyword = data.get('keyword', '')
+        platform = data.get('platform', '不限')
+        category = data.get('category', '不限')
+        fans = data.get('fans', '不限')
+
+        prompt = f"""你是专业的电视剧营销选号专家，擅长为影视剧投流推荐合适的KOL/达人账号。
+
+【搜索需求】
+- 关键词：{keyword}
+- 目标平台：{platform if platform else '全部平台（抖音、小红书、视频号、微博）'}
+- 垂类领域：{category if category else '不限'}
+- 粉丝量级：{fans if fans else '不限'}
+
+请基于你的知识，为该剧推荐 8-12 个适合合作推广的达人/KOL账号。
+
+推荐要求：
+1. **精准匹配**：达人的内容方向、粉丝画像必须与电视剧目标受众高度重合
+2. **数据真实**：参考公开可查的数据（如粉丝量、互动率），标注"仅供参考"
+3. **性价比分析**：根据粉丝量和互动率评估性价比
+4. **合作建议**：给出每个达人的合作方式和报价区间建议
+
+请按以下格式输出（Markdown表格 + 详细说明）：
+
+## 推荐达人列表
+
+| 序号 | 达人昵称 | 平台 | 内容垂类 | 粉丝量 | 平均互动率 | 估粉比评估 | 推荐理由 | 建议合作形式 | 预估报价区间 |
+|------|---------|------|---------|--------|-----------|-----------|---------|------------|------------|
+| 1 | ... | ... | ... | ... | ... | ... | ... | ... | ... |
+
+（填入 8-12 个达人，数据标注"参考值"）
+
+## 选号分析总结
+
+### 整体推荐策略
+- **头部达人**（100万+）：建议合作 X 位，用于...
+- **中腰部达人**（10-100万）：建议合作 X 位，用于...
+- **尾部KOC**（1-10万）：建议合作 X 位，用于...
+
+### 注意事项
+1. 数据为参考值，建议通过第三方数据平台（飞瓜/新榜/蝉妈妈）进一步验证
+2. 实际报价需联系达人或通过MCN机构获取
+3. 关注达人近期内容质量变化，避免合作期间内容质量下降
+
+请开始生成推荐列表。"""
+
+        return prompt
+
+    def _build_analysis_prompt(self, data):
+        monitor_data = data.get('data', [])
+        dimensions = data.get('dimensions', [])
+        extra = data.get('extra', '')
+        campaign = data.get('campaign', {})
+
+        # 构建数据摘要
+        data_summary = ""
+        if monitor_data:
+            total_spend = sum(d.get('spend', 0) for d in monitor_data)
+            total_impression = sum(d.get('impression', 0) for d in monitor_data)
+            total_click = sum(d.get('click', 0) for d in monitor_data)
+            total_interact = sum(d.get('interact', 0) for d in monitor_data)
+            total_convert = sum(d.get('convert', 0) for d in monitor_data)
+
+            data_summary += f"""
+### 投放数据汇总
+- **录入数据条数**：{len(monitor_data)} 条
+- **总消耗**：{total_spend:,.0f} 元
+- **总曝光**：{total_impression:,.0f}
+- **总点击**：{total_click:,.0f}（点击率：{(total_click/total_impression*100) if total_impression > 0 else 0:.2f}%）
+- **总互动**：{total_interact:,.0f}（互动率：{(total_interact/total_impression*100) if total_impression > 0 else 0:.2f}%）
+- **总转化**：{total_convert:,.0f}（转化率：{(total_convert/total_click*100) if total_click > 0 else 0:.2f}%）
+
+### 每日明细
+| 日期 | 平台 | 消耗(元) | 曝光 | 点击 | 互动 | 转化 |
+|------|------|----------|------|------|------|------|
+"""
+            for d in monitor_data:
+                data_summary += f"| {d.get('date','')} | {d.get('platform','')} | {d.get('spend',0):,.0f} | {d.get('impression',0):,.0f} | {d.get('click',0):,.0f} | {d.get('interact',0):,.0f} | {d.get('convert',0):,.0f} |\n"
+
+            # 按平台汇总
+            by_platform = {}
+            for d in monitor_data:
+                p = d.get('platform', '')
+                if p not in by_platform:
+                    by_platform[p] = {'spend': 0, 'impression': 0, 'click': 0, 'interact': 0, 'convert': 0}
+                by_platform[p]['spend'] += d.get('spend', 0)
+                by_platform[p]['impression'] += d.get('impression', 0)
+                by_platform[p]['click'] += d.get('click', 0)
+                by_platform[p]['interact'] += d.get('interact', 0)
+                by_platform[p]['convert'] += d.get('convert', 0)
+
+            data_summary += "\n### 各平台汇总\n| 平台 | 消耗(元) | 曝光 | 点击率 | 互动率 | 转化率 | 单次点击成本 |\n|------|----------|------|--------|--------|--------|------------|\n"
+            for p, v in by_platform.items():
+                ctr = (v['click']/v['impression']*100) if v['impression'] > 0 else 0
+                ir = (v['interact']/v['impression']*100) if v['impression'] > 0 else 0
+                cvr = (v['convert']/v['click']*100) if v['click'] > 0 else 0
+                cpc = (v['spend']/v['click']) if v['click'] > 0 else 0
+                data_summary += f"| {p} | {v['spend']:,.0f} | {v['impression']:,.0f} | {ctr:.2f}% | {ir:.2f}% | {cvr:.2f}% | ¥{cpc:.2f} |\n"
+
+        campaign_info = ""
+        if campaign:
+            campaign_info += f"""
+### 投放计划信息
+- 项目名称：{campaign.get('name', '-')}
+- 投放周期：{campaign.get('start', '-')} 至 {campaign.get('end', '-')}
+- 总预算：{campaign.get('budget', '-')} 万元
+"""
+
+        prompt = f"""你是专业的电视剧营销数据分析专家，请基于以下投放数据进行深度效果分析。
+
+{campaign_info}
+{data_summary}
+
+【分析维度】
+{', '.join(dimensions)}
+
+{f'【补充说明】{extra}' if extra else ''}
+
+请生成专业的效果分析报告，包括：
+
+## 📊 整体效果评估
+- 各项核心指标的达成情况
+- 与行业平均水平的对比
+- 总体评价和打分
+
+## 📈 趋势分析
+- 消耗趋势（是否平稳/有异常波动）
+- 效果趋势（曝光/点击/互动的变化）
+- 各平台表现对比
+
+{'## 💰 ROI 分析' if 'ROI' in dimensions else ''}
+- 各平台投入产出比
+- 单次转化成本分析
+- 预算使用效率评估
+
+{'## 🎬 素材效果排名' if '素材' in dimensions else ''}
+- 基于数据推断各类型素材的表现
+- 高效素材特征总结
+- 低效素材优化建议
+
+{'## 👥 受众行为分析' if '受众' in dimensions else ''}
+- 点击-互动-转化漏斗分析
+- 用户行为特征
+- 受众偏好洞察
+
+{'## ⚠️ 异常预警' if '异常' in dimensions else ''}
+- 数据异常点识别
+- 潜在风险预警
+- 应急处理建议
+
+{'## 💡 优化建议' if '优化' in dimensions else ''}
+- 即时可执行的优化方案
+- 预算调整建议
+- 内容策略调整
+- 下阶段投放建议
+
+请基于真实数据进行分析，给出具体、可操作的结论和建议。使用 Markdown 格式输出。"""
 
         return prompt
 

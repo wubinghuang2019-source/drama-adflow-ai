@@ -5,49 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>电视剧营销投流 AI 工作台</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --bg-base: #FAFBFE;
             --bg-card: #ffffff;
             --bg-card-hover: #f8f9fe;
             --bg-input: #f5f6fa;
-            --bg-sidebar: #f0f2f8;
             --accent: #53B76F;
             --accent-light: #62c47f;
             --accent-dark: #3D9F5A;
             --accent-glow: rgba(83, 183, 111, 0.15);
             --pink: #DD7694;
             --pink-light: #e886a4;
-            --pink-dark: #C9627D;
             --purple: #7C5CFC;
             --purple-light: #A78BFA;
             --teal: #0EA5E9;
+            --orange: #F59E0B;
+            --red: #EF4444;
             --text-primary: #262626;
             --text-secondary: #595959;
             --text-muted: #9ca3b4;
             --border: #E8E8E8;
-            --border-focus: #53B76F;
             --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
             --shadow-md: 0 4px 12px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
             --shadow-lg: 0 12px 40px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
             --shadow-accent: 0 6px 24px rgba(83, 183, 111, 0.25);
-            --shadow-pink: 0 6px 24px rgba(221, 118, 148, 0.25);
             --radius-sm: 8px;
             --radius-md: 14px;
             --radius-lg: 20px;
             --radius-xl: 24px;
             --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
         body {
             font-family: 'Noto Sans SC', 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
             background: var(--bg-base);
@@ -55,1235 +48,1431 @@
             color: var(--text-primary);
             overflow-x: hidden;
         }
-
-        /* 背景装饰 - 粉绿色块 */
         body::before {
             content: '';
             position: fixed;
-            top: -200px;
-            right: -200px;
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(221, 118, 148, 0.08) 0%, transparent 70%);
-            pointer-events: none;
-            z-index: 0;
+            top: -200px; right: -200px;
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(221,118,148,0.08) 0%, transparent 70%);
+            pointer-events: none; z-index: 0;
         }
         body::after {
             content: '';
             position: fixed;
-            bottom: -150px;
-            left: -150px;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(83, 183, 111, 0.08) 0%, transparent 70%);
-            pointer-events: none;
-            z-index: 0;
+            bottom: -150px; left: -150px;
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(83,183,111,0.08) 0%, transparent 70%);
+            pointer-events: none; z-index: 0;
         }
 
-        /* ===== 顶部导航 ===== */
+        /* ===== HEADER ===== */
         .header {
             background: rgba(255,255,255,0.85);
             backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
             border-bottom: 1px solid var(--border);
             padding: 0 2rem;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
+            position: sticky; top: 0; z-index: 1000;
         }
-
         .header-content {
-            max-width: 1440px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: 64px;
-            gap: 2rem;
+            max-width: 1440px; margin: 0 auto;
+            display: flex; justify-content: space-between; align-items: center;
+            height: 64px; gap: 1.5rem;
         }
-
         .logo {
-            font-family: 'Noto Sans SC', sans-serif;
-            font-size: 1.15rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            white-space: nowrap;
-            user-select: none;
+            font-size: 1.1rem; font-weight: 700;
+            display: flex; align-items: center; gap: 10px;
+            white-space: nowrap; user-select: none;
         }
-
-        .logo svg {
-            width: 32px;
-            height: 32px;
-            flex-shrink: 0;
-        }
-
+        .logo svg { width: 30px; height: 30px; flex-shrink: 0; }
         .logo-text-highlight {
-            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
         }
-
         .nav {
-            display: flex;
-            gap: 4px;
-            background: var(--bg-input);
-            border-radius: 12px;
-            padding: 4px;
+            display: flex; gap: 3px;
+            background: var(--bg-input); border-radius: 12px; padding: 4px;
         }
-
         .nav-item {
-            padding: 8px 20px;
-            border: none;
-            background: transparent;
-            color: var(--text-secondary);
-            cursor: pointer;
-            border-radius: 9px;
-            transition: var(--transition);
-            font-size: 0.88rem;
-            font-weight: 500;
-            font-family: inherit;
-            position: relative;
-            white-space: nowrap;
+            padding: 8px 18px; border: none; background: transparent;
+            color: var(--text-secondary); cursor: pointer; border-radius: 9px;
+            transition: var(--transition); font-size: 0.85rem; font-weight: 500;
+            font-family: inherit; white-space: nowrap;
         }
+        .nav-item:hover { color: var(--text-primary); background: rgba(255,255,255,0.7); }
+        .nav-item.active { background: var(--bg-card); color: var(--accent); font-weight: 600; box-shadow: var(--shadow-sm); }
 
-        .nav-item:hover {
-            color: var(--text-primary);
-            background: rgba(255,255,255,0.7);
-        }
-
-        .nav-item.active {
-            background: var(--bg-card);
-            color: var(--accent);
-            font-weight: 600;
-            box-shadow: var(--shadow-sm);
-        }
-
-        /* ===== 主容器布局 ===== */
+        /* ===== MAIN LAYOUT ===== */
         .container {
-            max-width: 1440px;
-            margin: 1.5rem auto;
-            padding: 0 2rem;
-            display: grid;
-            grid-template-columns: 260px 1fr 280px;
-            gap: 1.5rem;
-            position: relative;
-            z-index: 1;
+            max-width: 1200px; margin: 1.5rem auto; padding: 0 2rem;
+            position: relative; z-index: 1;
         }
-
-        /* ===== 左侧边栏 ===== */
-        .sidebar {
-            background: var(--bg-card);
-            border-radius: var(--radius-lg);
-            padding: 1.5rem;
-            box-shadow: var(--shadow-sm);
-            height: fit-content;
-            border: 1px solid var(--border);
-            position: sticky;
-            top: 80px;
-        }
-
-        .sidebar-title {
-            font-size: 0.78rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-        }
-
-        .project-info {
-            padding: 1.2rem;
-            background: linear-gradient(135deg, rgba(221,118,148,0.04) 0%, rgba(83,183,111,0.04) 100%);
-            border-radius: var(--radius-md);
-            margin-bottom: 1.5rem;
-            border: 1px solid rgba(83,183,111,0.1);
-        }
-
-        .project-info-item {
-            margin-bottom: 0.7rem;
-            font-size: 0.85rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .project-info-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .project-info-label {
-            color: var(--text-muted);
-            font-weight: 400;
-        }
-
-        .project-info-value {
-            color: var(--text-primary);
-            font-weight: 600;
-        }
-
-        .quick-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .quick-action-btn {
-            padding: 10px 14px;
-            background: transparent;
-            color: var(--text-secondary);
-            border: none;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            font-size: 0.85rem;
-            font-weight: 500;
-            transition: var(--transition);
-            text-align: left;
-            font-family: inherit;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .quick-action-btn:hover {
-            background: var(--bg-input);
-            color: var(--text-primary);
-            transform: translateX(4px);
-        }
-
-        .quick-action-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            flex-shrink: 0;
-        }
-
-        .quick-action-btn:nth-child(1) .quick-action-icon { background: rgba(221,118,148,0.1); }
-        .quick-action-btn:nth-child(2) .quick-action-icon { background: rgba(83,183,111,0.1); }
-        .quick-action-btn:nth-child(3) .quick-action-icon { background: rgba(124,92,252,0.1); }
-        .quick-action-btn:nth-child(4) .quick-action-icon { background: rgba(14,165,233,0.1); }
-
-        /* ===== 主内容区 ===== */
         .main-content {
             background: var(--bg-card);
             border-radius: var(--radius-xl);
             padding: 2.5rem;
             box-shadow: var(--shadow-md);
-            min-height: 700px;
+            min-height: 600px;
             border: 1px solid var(--border);
         }
 
-        .module-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 2rem;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding-bottom: 1.25rem;
-            border-bottom: 2px solid var(--border);
-        }
-
-        .module-title-icon {
-            width: 42px;
-            height: 42px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            flex-shrink: 0;
-        }
-
-        .form-group {
-            margin-bottom: 1.4rem;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 0.6rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            font-size: 0.88rem;
-        }
-
-        .form-input, .form-textarea, .form-select {
-            width: 100%;
-            padding: 12px 16px;
-            border: 2px solid var(--border);
-            border-radius: var(--radius-sm);
-            font-size: 0.92rem;
-            transition: var(--transition);
-            background: var(--bg-input);
-            color: var(--text-primary);
-            font-family: inherit;
-        }
-
-        .form-input:focus, .form-textarea:focus, .form-select:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 4px var(--accent-glow);
-            background: var(--bg-card);
-        }
-
-        .form-input::placeholder, .form-textarea::placeholder {
-            color: var(--text-muted);
-        }
-
-        .form-select {
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239ca3b4' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 14px center;
-            padding-right: 3rem;
-        }
-
-        .form-select option {
-            background: var(--bg-card);
-            color: var(--text-primary);
-        }
-
-        .form-textarea {
-            min-height: 110px;
-            resize: vertical;
-            line-height: 1.6;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-
-        /* 主操作按钮 */
-        .btn {
-            padding: 13px 32px;
-            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
-            color: #fff;
-            border: none;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            font-size: 0.95rem;
-            font-weight: 600;
-            transition: var(--transition);
-            box-shadow: var(--shadow-accent);
-            font-family: inherit;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 32px rgba(255, 107, 53, 0.35);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        .btn:disabled {
-            background: var(--text-muted);
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .btn:disabled:hover {
-            transform: none;
-            box-shadow: none;
-        }
-
-        .btn span {
-            position: relative;
-            z-index: 1;
-        }
-
-        .btn-secondary {
-            background: #6c757d;
-            box-shadow: none;
-        }
-        .btn-secondary:hover {
-            background: #5a6268;
-            box-shadow: none;
-        }
-
-        /* 输出区域 */
-        .output-area {
-            margin-top: 2rem;
-            padding: 1.8rem;
-            background: linear-gradient(135deg, rgba(255,107,53,0.03) 0%, rgba(124,92,252,0.03) 100%);
-            border-radius: var(--radius-lg);
-            border: 1px solid rgba(255,107,53,0.1);
-            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(16px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .output-title {
-            font-size: 1.15rem;
-            font-weight: 700;
-            margin-bottom: 1.2rem;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .output-content {
-            white-space: pre-wrap;
-            line-height: 1.9;
-            color: var(--text-primary);
-            font-size: 0.92rem;
-        }
-
-        .output-content h1, .output-content h2, .output-content h3 {
-            margin-top: 1.6em;
-            margin-bottom: 0.8em;
-            font-weight: 700;
-        }
-
-        .output-content h1 {
-            font-size: 1.7em;
-            color: var(--accent);
-        }
-
-        .output-content h2 {
-            font-size: 1.35em;
-            padding-bottom: 0.4em;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .output-content h3 {
-            font-size: 1.15em;
-            color: var(--text-secondary);
-        }
-
-        .output-content ul, .output-content ol {
-            padding-left: 1.6em;
-            margin: 0.7em 0;
-        }
-
-        .output-content li {
-            margin: 0.4em 0;
-        }
-
-        .output-content strong {
-            color: var(--accent-dark);
-            font-weight: 600;
-        }
-
-        .output-content code {
-            background: rgba(255,107,53,0.08);
-            padding: 0.15em 0.5em;
-            border-radius: 4px;
-            font-size: 0.88em;
-            color: var(--accent-dark);
-        }
-
-        .output-content blockquote {
-            border-left: 3px solid var(--accent);
-            padding: 0.8em 1.2em;
-            color: var(--text-secondary);
-            margin: 1em 0;
-            background: rgba(255,107,53,0.03);
-            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-        }
-
-        .output-content table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 1em 0;
-            border-radius: var(--radius-sm);
-            overflow: hidden;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .output-content th, .output-content td {
-            padding: 0.8em 1em;
-            text-align: left;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .output-content th {
-            background: var(--bg-input);
-            font-weight: 600;
-            color: var(--text-primary);
-            font-size: 0.85em;
-        }
-
-        .output-content tr:last-child td {
-            border-bottom: none;
-        }
-
-        .copy-btn {
-            float: right;
-            padding: 6px 14px;
-            background: var(--bg-input);
-            color: var(--text-secondary);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            font-size: 0.82rem;
-            font-weight: 500;
-            transition: var(--transition);
-            font-family: inherit;
-        }
-
-        .copy-btn:hover {
-            background: var(--accent);
-            color: #fff;
-            border-color: var(--accent);
-        }
-
-        .loading {
-            display: inline-block;
-            width: 18px;
-            height: 18px;
-            border: 2.5px solid rgba(255,255,255,0.3);
-            border-top: 2.5px solid #fff;
-            border-radius: 50%;
-            animation: spin 0.7s linear infinite;
-            margin-right: 0.4rem;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* ===== 右侧边栏 ===== */
-        .right-sidebar {
-            background: var(--bg-card);
-            border-radius: var(--radius-lg);
-            padding: 1.5rem;
-            box-shadow: var(--shadow-sm);
-            height: fit-content;
-            border: 1px solid var(--border);
-            position: sticky;
-            top: 80px;
-        }
-
-        .history-item {
-            padding: 1rem 1.2rem;
-            background: var(--bg-input);
-            border-radius: var(--radius-sm);
-            margin-bottom: 0.6rem;
-            cursor: pointer;
-            transition: var(--transition);
-            border: 1px solid transparent;
-        }
-
-        .history-item:hover {
-            background: var(--bg-card-hover);
-            border-color: var(--border);
-            transform: translateX(4px);
-        }
-
-        .history-item-title {
-            font-size: 0.88rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 0.3rem;
-        }
-
-        .history-item-date {
-            font-size: 0.78rem;
-            color: var(--text-muted);
-        }
-
-        .data-overview {
-            padding: 1.5rem;
-            background: linear-gradient(135deg, rgba(255,107,53,0.05) 0%, rgba(14,165,233,0.05) 100%);
-            border-radius: var(--radius-md);
-            text-align: center;
-            border: 1px solid rgba(255,107,53,0.08);
-        }
-
-        .data-overview-value {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 2.4rem;
-            font-weight: 700;
-            color: var(--accent);
-            margin-bottom: 0.4rem;
-        }
-
-        .data-overview-label {
-            font-size: 0.82rem;
-            color: var(--text-muted);
-            font-weight: 500;
-        }
-
-        /* ===== 模块切换 ===== */
+        /* ===== MODULE SYSTEM ===== */
         .module { display: none; }
         .module.active { display: block; }
 
-        /* ===== 标签选择器 ===== */
-        .tag-selector {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 0.6rem;
+        /* ===== MODULE TITLE ===== */
+        .module-title {
+            font-size: 1.4rem; font-weight: 700;
+            margin-bottom: 1.8rem;
+            display: flex; align-items: center; gap: 12px;
+            padding-bottom: 1rem; border-bottom: 2px solid var(--border);
+        }
+        .module-title-icon {
+            width: 40px; height: 40px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; flex-shrink: 0;
         }
 
+        /* ===== FORMS ===== */
+        .form-group { margin-bottom: 1.2rem; }
+        .form-label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-primary); font-size: 0.88rem; }
+        .form-input, .form-textarea, .form-select {
+            width: 100%; padding: 11px 16px;
+            border: 2px solid var(--border); border-radius: var(--radius-sm);
+            font-size: 0.9rem; transition: var(--transition);
+            background: var(--bg-input); color: var(--text-primary); font-family: inherit;
+        }
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-glow); background: var(--bg-card);
+        }
+        .form-input::placeholder, .form-textarea::placeholder { color: var(--text-muted); }
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239ca3b4' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 14px center; padding-right: 3rem;
+        }
+        .form-textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+        /* ===== BUTTONS ===== */
+        .btn {
+            padding: 12px 28px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            color: #fff; border: none; border-radius: var(--radius-sm);
+            cursor: pointer; font-size: 0.92rem; font-weight: 600;
+            transition: var(--transition); box-shadow: var(--shadow-accent);
+            font-family: inherit; display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(83,183,111,0.35); }
+        .btn:active { transform: translateY(0); }
+        .btn:disabled { background: var(--text-muted); cursor: not-allowed; transform: none; box-shadow: none; }
+        .btn-secondary { background: #6c757d; box-shadow: none; }
+        .btn-secondary:hover { background: #5a6268; box-shadow: none; }
+        .btn-sm { padding: 8px 16px; font-size: 0.82rem; }
+        .btn-outline {
+            background: transparent; color: var(--accent); border: 2px solid var(--accent);
+            box-shadow: none;
+        }
+        .btn-outline:hover { background: var(--accent); color: #fff; }
+        .btn-danger { background: var(--red); box-shadow: 0 4px 16px rgba(239,68,68,0.25); }
+        .btn-danger:hover { box-shadow: 0 6px 24px rgba(239,68,68,0.35); }
+
+        /* ===== TAG SELECTOR ===== */
+        .tag-selector { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 0.5rem; }
         .tag {
-            padding: 8px 18px;
-            background: var(--bg-input);
-            border: 2px solid transparent;
-            border-radius: 100px;
-            cursor: pointer;
-            font-size: 0.84rem;
-            font-weight: 500;
-            transition: var(--transition);
-            color: var(--text-secondary);
-            user-select: none;
+            padding: 7px 16px; background: var(--bg-input); border: 2px solid transparent;
+            border-radius: 100px; cursor: pointer; font-size: 0.82rem; font-weight: 500;
+            transition: var(--transition); color: var(--text-secondary); user-select: none; font-family: inherit;
+        }
+        .tag:hover { border-color: var(--accent); color: var(--accent); }
+        .tag.selected { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 2px 10px rgba(83,183,111,0.3); }
+
+        /* ===== PLATFORM SELECTOR ===== */
+        .platform-selector { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 1rem 0; }
+        .platform-card {
+            padding: 1.2rem 0.8rem; background: var(--bg-input); border: 2px solid transparent;
+            border-radius: var(--radius-md); cursor: pointer; transition: var(--transition); text-align: center;
+        }
+        .platform-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: var(--shadow-md); }
+        .platform-card.selected { border-color: var(--accent); background: rgba(83,183,111,0.05); box-shadow: 0 4px 16px rgba(83,183,111,0.15); transform: translateY(-3px); }
+        .platform-icon { font-size: 1.8rem; margin-bottom: 0.4rem; display: block; }
+        .platform-name { font-size: 0.82rem; font-weight: 600; color: var(--text-primary); }
+        .platform-card.selected .platform-name { color: var(--accent); }
+
+        /* ===== OUTPUT AREA ===== */
+        .output-area {
+            margin-top: 2rem; padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(83,183,111,0.03), rgba(124,92,252,0.03));
+            border-radius: var(--radius-lg); border: 1px solid rgba(83,183,111,0.1);
+            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+        .output-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 10px; }
+        .output-content { white-space: pre-wrap; line-height: 1.9; font-size: 0.9rem; }
+        .output-content h1, .output-content h2, .output-content h3 { margin-top: 1.4em; margin-bottom: 0.6em; font-weight: 700; }
+        .output-content h1 { font-size: 1.6em; color: var(--accent); }
+        .output-content h2 { font-size: 1.3em; padding-bottom: 0.3em; border-bottom: 1px solid var(--border); }
+        .output-content h3 { font-size: 1.1em; color: var(--text-secondary); }
+        .output-content ul, .output-content ol { padding-left: 1.6em; margin: 0.6em 0; }
+        .output-content li { margin: 0.35em 0; }
+        .output-content strong { color: var(--accent-dark); }
+        .output-content table { width: 100%; border-collapse: collapse; margin: 1em 0; border-radius: var(--radius-sm); overflow: hidden; box-shadow: var(--shadow-sm); }
+        .output-content th, .output-content td { padding: 0.7em 1em; text-align: left; border-bottom: 1px solid var(--border); }
+        .output-content th { background: var(--bg-input); font-weight: 600; font-size: 0.85em; }
+        .output-content tr:last-child td { border-bottom: none; }
+        .output-content blockquote { border-left: 3px solid var(--accent); padding: 0.8em 1.2em; color: var(--text-secondary); margin: 1em 0; background: rgba(83,183,111,0.03); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+
+        .copy-btn {
+            float: right; padding: 5px 12px; background: var(--bg-input); color: var(--text-secondary);
+            border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer;
+            font-size: 0.8rem; font-weight: 500; transition: var(--transition); font-family: inherit;
+        }
+        .copy-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+        /* ===== LOADING ===== */
+        .loading { display: inline-block; width: 16px; height: 16px; border: 2.5px solid rgba(255,255,255,0.3); border-top: 2.5px solid #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* ===== SUB-TAB ===== */
+        .sub-tabs { display: flex; gap: 0; margin-bottom: 1.5rem; border-bottom: 2px solid var(--border); }
+        .sub-tab {
+            padding: 10px 20px; border: none; background: transparent; cursor: pointer;
+            font-size: 0.88rem; font-weight: 500; color: var(--text-muted);
+            border-bottom: 3px solid transparent; margin-bottom: -2px; transition: var(--transition);
             font-family: inherit;
         }
+        .sub-tab:hover { color: var(--text-primary); }
+        .sub-tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
 
-        .tag:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-            background: rgba(255,107,53,0.04);
+        /* ===== STAT CARDS ===== */
+        .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+        .stat-card {
+            background: var(--bg-input); border-radius: var(--radius-md); padding: 1.2rem;
+            text-align: center; border: 1px solid var(--border); transition: var(--transition);
+        }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .stat-value { font-family: 'Space Grotesk', sans-serif; font-size: 1.8rem; font-weight: 700; color: var(--accent); }
+        .stat-label { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.3rem; }
+        .stat-change { font-size: 0.75rem; margin-top: 0.2rem; }
+        .stat-change.up { color: var(--red); }
+        .stat-change.down { color: var(--accent); }
+
+        /* ===== DATA TABLE ===== */
+        .data-table-wrap { overflow-x: auto; margin-top: 1rem; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+        .data-table th { background: var(--bg-input); font-weight: 600; color: var(--text-secondary); padding: 10px 14px; text-align: left; border-bottom: 2px solid var(--border); white-space: nowrap; }
+        .data-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
+        .data-table tr:hover { background: var(--bg-card-hover); }
+
+        /* ===== CHART CONTAINER ===== */
+        .chart-container { position: relative; height: 300px; margin: 1rem 0; }
+        .chart-row { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin: 1rem 0; }
+
+        /* ===== ACCOUNT CARDS (选号) ===== */
+        .account-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem; }
+        .account-card {
+            background: var(--bg-card); border: 2px solid var(--border); border-radius: var(--radius-md);
+            padding: 1.2rem; transition: var(--transition); cursor: pointer; position: relative;
+        }
+        .account-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: var(--shadow-md); }
+        .account-card.selected { border-color: var(--accent); background: rgba(83,183,111,0.03); }
+        .account-header { display: flex; align-items: center; gap: 12px; margin-bottom: 0.8rem; }
+        .account-avatar {
+            width: 48px; height: 48px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--purple));
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-weight: 700; font-size: 1.1rem; flex-shrink: 0;
+        }
+        .account-name { font-weight: 600; font-size: 0.95rem; }
+        .account-platform { font-size: 0.78rem; color: var(--text-muted); }
+        .account-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.8rem; }
+        .account-stat { text-align: center; }
+        .account-stat-value { font-family: 'Space Grotesk'; font-weight: 700; font-size: 1rem; color: var(--text-primary); }
+        .account-stat-label { font-size: 0.72rem; color: var(--text-muted); }
+        .account-actions { display: flex; gap: 6px; margin-top: 0.8rem; }
+        .account-tag {
+            display: inline-block; padding: 2px 8px; border-radius: 100px;
+            font-size: 0.72rem; font-weight: 500; margin-right: 4px;
+        }
+        .account-tag.fans { background: rgba(83,183,111,0.1); color: var(--accent-dark); }
+        .account-tag.interaction { background: rgba(124,92,252,0.1); color: var(--purple); }
+        .account-tag.price { background: rgba(245,158,11,0.1); color: var(--orange); }
+        .fav-btn {
+            position: absolute; top: 10px; right: 10px; background: none; border: none;
+            font-size: 1.2rem; cursor: pointer; opacity: 0.5; transition: var(--transition);
+        }
+        .fav-btn:hover, .fav-btn.active { opacity: 1; }
+
+        /* ===== CAMPAIGN (投放) ===== */
+        .campaign-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+        .campaign-status { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 100px; font-size: 0.82rem; font-weight: 600; }
+        .campaign-status.active { background: rgba(83,183,111,0.1); color: var(--accent-dark); }
+        .campaign-status.paused { background: rgba(245,158,11,0.1); color: var(--orange); }
+        .campaign-status.ended { background: rgba(156,163,175,0.1); color: var(--text-muted); }
+        .budget-bar { height: 8px; background: var(--bg-input); border-radius: 100px; overflow: hidden; margin-top: 4px; }
+        .budget-bar-fill { height: 100%; border-radius: 100px; background: linear-gradient(90deg, var(--accent), var(--accent-light)); transition: width 0.5s; }
+        .material-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+        .material-item:last-child { border-bottom: none; }
+        .material-status { padding: 3px 10px; border-radius: 100px; font-size: 0.75rem; font-weight: 600; }
+        .material-status.published { background: rgba(83,183,111,0.1); color: var(--accent-dark); }
+        .material-status.pending { background: rgba(245,158,11,0.1); color: var(--orange); }
+        .material-status.draft { background: rgba(156,163,175,0.1); color: var(--text-muted); }
+
+        /* ===== ALERT ===== */
+        .alert { padding: 12px 16px; border-radius: var(--radius-sm); margin: 0.8rem 0; font-size: 0.88rem; display: flex; align-items: center; gap: 10px; }
+        .alert-warning { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); color: #92400E; }
+        .alert-danger { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); color: #991B1B; }
+        .alert-success { background: rgba(83,183,111,0.08); border: 1px solid rgba(83,183,111,0.2); color: #166534; }
+        .alert-info { background: rgba(14,165,233,0.08); border: 1px solid rgba(14,165,233,0.2); color: #075985; }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); z-index: 2000;
+            display: flex; align-items: center; justify-content: center;
+            animation: fadeIn 0.2s;
+        }
+        .modal {
+            background: var(--bg-card); border-radius: var(--radius-lg);
+            padding: 2rem; width: 90%; max-width: 560px;
+            box-shadow: var(--shadow-lg); animation: slideUp 0.3s;
+        }
+        .modal-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 1.2rem; }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 1.5rem; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            text-align: center; padding: 2rem; color: var(--text-muted);
+            font-size: 0.78rem; position: relative; z-index: 1;
         }
 
-        .tag.selected {
-            background: var(--accent);
-            border-color: var(--accent);
-            color: #fff;
-            box-shadow: 0 2px 10px rgba(255,107,53,0.3);
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 900px) {
+            .header-content { height: auto; flex-wrap: wrap; padding: 10px 0; gap: 8px; }
+            .nav { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            .container { padding: 0 1rem; margin: 1rem auto; }
+            .main-content { padding: 1.5rem; border-radius: var(--radius-lg); }
+            .form-row { grid-template-columns: 1fr; }
+            .platform-selector { grid-template-columns: repeat(2, 1fr); }
+            .stat-grid { grid-template-columns: repeat(2, 1fr); }
+            .account-grid { grid-template-columns: 1fr; }
+            .chart-row { grid-template-columns: 1fr; }
+            .campaign-header { flex-direction: column; align-items: flex-start; }
         }
-
-        /* ===== 平台选择器 ===== */
-        .platform-selector {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-            margin: 1rem 0;
-        }
-
-        .platform-card {
-            padding: 1.4rem 1rem;
-            background: var(--bg-input);
-            border: 2px solid transparent;
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            transition: var(--transition);
-            text-align: center;
-        }
-
-        .platform-card:hover {
-            border-color: var(--accent);
-            background: rgba(255,107,53,0.03);
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .platform-card.selected {
-            border-color: var(--accent);
-            background: rgba(255,107,53,0.05);
-            box-shadow: 0 4px 16px rgba(255,107,53,0.15);
-            transform: translateY(-4px);
-        }
-
-        .platform-icon {
-            font-size: 2rem;
-            margin-bottom: 0.6rem;
-            display: block;
-        }
-
-        .platform-name {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .platform-card.selected .platform-name {
-            color: var(--accent);
-        }
-
-        /* ===== 响应式 ===== */
-        @media (max-width: 1200px) {
-            .container {
-                grid-template-columns: 1fr;
-            }
-            .sidebar, .right-sidebar {
-                position: static;
-                order: -1;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .header-content {
-                height: auto;
-                flex-wrap: wrap;
-                padding: 12px 0;
-                gap: 10px;
-            }
-            .nav {
-                width: 100%;
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-            }
-            .container {
-                padding: 0 1rem;
-            }
-            .main-content {
-                padding: 1.5rem;
-            }
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-            .platform-selector {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        /* ===== 开发中占位 ===== */
-        .coming-soon {
-            padding: 3rem 2rem;
-            text-align: center;
-        }
-        .coming-soon-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            opacity: 0.6;
-        }
-        .coming-soon h3 {
-            font-size: 1.1rem;
-            color: var(--text-secondary);
-            margin-bottom: 0.5rem;
-        }
-        .coming-soon p {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            line-height: 1.6;
+        @media (max-width: 600px) {
+            .stat-grid { grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+            .stat-value { font-size: 1.4rem; }
         }
     </style>
 </head>
 <body>
+    <!-- HEADER -->
     <div class="header">
         <div class="header-content">
             <div class="logo">
                 <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                    <!-- 底座 - 带颜色呼吸 -->
                     <rect x="20" y="55" width="60" height="30" rx="3" fill="#53B76F">
                         <animate attributeName="fill" values="#53B76F;#62c47f;#53B76F" dur="2.5s" repeatCount="indefinite"/>
                     </rect>
-                    <!-- 导演板主体 - 带轻微晃动 -->
                     <g transform="rotate(-15 50 40)">
                         <animateTransform attributeName="transform" type="rotate" values="-15 50 40;-13 50 40;-15 50 40" dur="4s" repeatCount="indefinite"/>
                         <rect x="15" y="30" width="70" height="20" rx="2" fill="#DD7694">
                             <animate attributeName="fill" values="#DD7694;#e886a4;#DD7694" dur="2.5s" repeatCount="indefinite"/>
                         </rect>
-                        <!-- 黑白条纹 - 波浪闪烁 -->
-                        <rect x="20" y="32" width="8" height="16" fill="white">
-                            <animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite" begin="0s"/>
-                        </rect>
-                        <rect x="31" y="32" width="8" height="16" fill="white">
-                            <animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite" begin="0.3s"/>
-                        </rect>
-                        <rect x="42" y="32" width="8" height="16" fill="white">
-                            <animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite" begin="0.6s"/>
-                        </rect>
-                        <rect x="53" y="32" width="8" height="16" fill="white">
-                            <animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite" begin="0.9s"/>
-                        </rect>
-                        <rect x="64" y="32" width="8" height="16" fill="white">
-                            <animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite" begin="1.2s"/>
-                        </rect>
-                        <rect x="75" y="32" width="8" height="16" fill="white">
-                            <animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite" begin="1.5s"/>
-                        </rect>
+                        <rect x="20" y="32" width="8" height="16" fill="white"><animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite" begin="0s"/></rect>
+                        <rect x="31" y="32" width="8" height="16" fill="white"><animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite" begin="0.3s"/></rect>
+                        <rect x="42" y="32" width="8" height="16" fill="white"><animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite" begin="0.6s"/></rect>
+                        <rect x="53" y="32" width="8" height="16" fill="white"><animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite" begin="0.9s"/></rect>
+                        <rect x="64" y="32" width="8" height="16" fill="white"><animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite" begin="1.2s"/></rect>
+                        <rect x="75" y="32" width="8" height="16" fill="white"><animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite" begin="1.5s"/></rect>
                     </g>
-                    <!-- 螺丝钉 - 轻微脉冲 -->
-                    <circle cx="22" cy="55" r="3" fill="#262626">
-                        <animate attributeName="r" values="3;3.3;3" dur="2s" repeatCount="indefinite"/>
-                    </circle>
-                    <circle cx="78" cy="55" r="3" fill="#262626">
-                        <animate attributeName="r" values="3;3.3;3" dur="2s" repeatCount="indefinite"/>
-                    </circle>
-                    <!-- 底座纹理 - 呼吸 -->
-                    <rect x="28" y="63" width="44" height="3" rx="1.5" fill="white" opacity="0.3">
-                        <animate attributeName="opacity" values="0.3;0.7;0.3" dur="2.5s" repeatCount="indefinite"/>
-                    </rect>
-                    <rect x="28" y="70" width="30" height="3" rx="1.5" fill="white" opacity="0.3">
-                        <animate attributeName="opacity" values="0.3;0.7;0.3" dur="3s" repeatCount="indefinite"/>
-                    </rect>
-                    <!-- 装饰星星 - 柔和闪烁 -->
-                    <circle cx="15" cy="22" r="2" fill="#DD7694" opacity="0.7">
-                        <animate attributeName="opacity" values="0.7;0.2;0.7" dur="2s" repeatCount="indefinite"/>
-                        <animate attributeName="r" values="2;2.3;2" dur="2s" repeatCount="indefinite"/>
-                    </circle>
-                    <circle cx="85" cy="25" r="1.8" fill="#53B76F" opacity="0.6">
-                        <animate attributeName="opacity" values="0.6;0.15;0.6" dur="2.3s" repeatCount="indefinite"/>
-                        <animate attributeName="r" values="1.8;2.1;1.8" dur="2.3s" repeatCount="indefinite"/>
-                    </circle>
-                    <circle cx="13" cy="80" r="1.6" fill="#DD7694" opacity="0.65">
-                        <animate attributeName="opacity" values="0.65;0.15;0.65" dur="2.5s" repeatCount="indefinite"/>
-                        <animate attributeName="r" values="1.6;1.9;1.6" dur="2.5s" repeatCount="indefinite"/>
-                    </circle>
-                    <circle cx="88" cy="78" r="1.5" fill="#53B76F" opacity="0.55">
-                        <animate attributeName="opacity" values="0.55;0.1;0.55" dur="2.8s" repeatCount="indefinite"/>
-                        <animate attributeName="r" values="1.5;1.8;1.5" dur="2.8s" repeatCount="indefinite"/>
-                    </circle>
+                    <circle cx="22" cy="55" r="3" fill="#262626"><animate attributeName="r" values="3;3.3;3" dur="2s" repeatCount="indefinite"/></circle>
+                    <circle cx="78" cy="55" r="3" fill="#262626"><animate attributeName="r" values="3;3.3;3" dur="2s" repeatCount="indefinite"/></circle>
                 </svg>
                 <span>营销投流<span class="logo-text-highlight">AI</span> 工作台</span>
             </div>
             <div class="nav">
                 <button class="nav-item active" onclick="switchModule('strategy', this)">策略生成</button>
-                <button class="nav-item" onclick="switchModule('copywriting', this)">文案生成</button>
+                <button class="nav-item" onclick="switchModule('account', this)">选号管理</button>
+                <button class="nav-item" onclick="switchModule('campaign', this)">投放管理</button>
                 <button class="nav-item" onclick="switchModule('monitor', this)">数据监控</button>
                 <button class="nav-item" onclick="switchModule('analysis', this)">效果分析</button>
             </div>
         </div>
     </div>
 
+    <!-- MAIN CONTENT -->
     <div class="container">
-        <!-- 左侧边栏 -->
-        <div class="sidebar">
-            <div class="sidebar-title">当前项目</div>
-            <div class="project-info">
-                <div class="project-info-item">
-                    <span class="project-info-label">剧名</span>
-                    <span id="current-drama">-</span>
-                </div>
-                <div class="project-info-item">
-                    <span class="project-info-label">类型</span>
-                    <span id="current-type">-</span>
-                </div>
-                <div class="project-info-item">
-                    <span class="project-info-label">状态</span>
-                    <span id="current-status">-</span>
-                </div>
-            </div>
-
-            <div class="sidebar-title">快速操作</div>
-            <div class="quick-actions">
-                <button class="quick-action-btn" onclick="switchModule('strategy', document.querySelectorAll('.nav-item')[0])">
-                    <span class="quick-action-icon">📋</span>
-                    新建投流方案
-                </button>
-                <button class="quick-action-btn" onclick="switchModule('copywriting', document.querySelectorAll('.nav-item')[1])">
-                    <span class="quick-action-icon">✍️</span>
-                    生成投放文案
-                </button>
-                <button class="quick-action-btn" onclick="switchModule('monitor', document.querySelectorAll('.nav-item')[2])">
-                    <span class="quick-action-icon">📊</span>
-                    查看数据监控
-                </button>
-                <button class="quick-action-btn" onclick="switchModule('analysis', document.querySelectorAll('.nav-item')[3])">
-                    <span class="quick-action-icon">📈</span>
-                    效果分析报告
-                </button>
-            </div>
-        </div>
-
-        <!-- 主内容区 -->
         <div class="main-content">
-            <!-- 策略生成模块 -->
+
+            <!-- ==================== 策略生成（含文案） ==================== -->
             <div id="strategy-module" class="module active">
                 <div class="module-title">
-                    <span class="module-title-icon" style="background: rgba(255,107,53,0.1);">📋</span>
-                    投流策略生成
+                    <span class="module-title-icon" style="background: rgba(83,183,111,0.1);">📋</span>
+                    策略生成
+                </div>
+                <div class="sub-tabs">
+                    <button class="sub-tab active" onclick="switchSubTab('strategy-gen', this)">投流策略</button>
+                    <button class="sub-tab" onclick="switchSubTab('strategy-copy', this)">文案生成</button>
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label">剧集基本信息</label>
-                    <div class="form-row">
-                        <input type="text" class="form-input" id="drama-name" placeholder="剧名（如：繁花）">
-                        <select class="form-select" id="drama-type">
-                            <option value="">选择类型</option>
-                            <option value="古装">古装</option>
-                            <option value="现代">现代</option>
-                            <option value="悬疑">悬疑</option>
-                            <option value="爱情">爱情</option>
-                            <option value="喜剧">喜剧</option>
-                            <option value="科幻">科幻</option>
-                            <option value="战争">战争</option>
-                            <option value="其他">其他</option>
+                <!-- 策略生成子模块 -->
+                <div id="strategy-gen" class="sub-module">
+                    <div class="form-group">
+                        <label class="form-label">剧集基本信息</label>
+                        <div class="form-row">
+                            <input type="text" class="form-input" id="drama-name" placeholder="剧名（如：繁花）">
+                            <select class="form-select" id="drama-type">
+                                <option value="">选择类型</option>
+                                <option value="古装">古装</option>
+                                <option value="现代">现代</option>
+                                <option value="悬疑">悬疑</option>
+                                <option value="爱情">爱情</option>
+                                <option value="喜剧">喜剧</option>
+                                <option value="科幻">科幻</option>
+                                <option value="战争">战争</option>
+                                <option value="其他">其他</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">主演阵容</label>
+                        <input type="text" class="form-input" id="drama-cast" placeholder="主演（如：胡歌、马伊琍、唐嫣）">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">核心看点（可多选）</label>
+                        <div class="tag-selector" id="highlight-tags">
+                            <div class="tag" onclick="toggleTag(this)">剧情精彩</div>
+                            <div class="tag" onclick="toggleTag(this)">演员阵容</div>
+                            <div class="tag" onclick="toggleTag(this)">制作精良</div>
+                            <div class="tag" onclick="toggleTag(this)">话题热度</div>
+                            <div class="tag" onclick="toggleTag(this)">原著IP</div>
+                            <div class="tag" onclick="toggleTag(this)">情感共鸣</div>
+                            <div class="tag" onclick="toggleTag(this)">视觉效果</div>
+                            <div class="tag" onclick="toggleTag(this)">创新题材</div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">目标受众特征</label>
+                        <textarea class="form-textarea" id="target-audience" placeholder="描述目标受众特征（如：25-35岁女性，都市白领，喜欢情感剧情）"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">预算与周期</label>
+                        <div class="form-row">
+                            <input type="text" class="form-input" id="budget" placeholder="预算范围（如：50-100万）">
+                            <input type="text" class="form-input" id="duration" placeholder="投放周期（如：30天）">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">投放平台（可多选）</label>
+                        <div class="platform-selector">
+                            <div class="platform-card" onclick="togglePlatform(this)"><span class="platform-icon">🎵</span><span class="platform-name">抖音</span></div>
+                            <div class="platform-card" onclick="togglePlatform(this)"><span class="platform-icon">📕</span><span class="platform-name">小红书</span></div>
+                            <div class="platform-card" onclick="togglePlatform(this)"><span class="platform-icon">📱</span><span class="platform-name">视频号</span></div>
+                            <div class="platform-card" onclick="togglePlatform(this)"><span class="platform-icon">🐦</span><span class="platform-name">微博</span></div>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="generateStrategy()"><span id="strategy-btn-text">生成投流策略</span></button>
+                    <div class="output-area" id="strategy-output" style="display: none;">
+                        <div class="output-title">📊 投流策略方案</div>
+                        <button class="copy-btn" onclick="copyContent('strategy-content')">复制</button>
+                        <div class="output-content" id="strategy-content"></div>
+                    </div>
+                </div>
+
+                <!-- 文案生成子模块 -->
+                <div id="strategy-copy" class="sub-module" style="display:none;">
+                    <div class="form-group">
+                        <label class="form-label">剧集信息</label>
+                        <input type="text" class="form-input" id="copy-drama-name" placeholder="剧名">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">素材内容/看点</label>
+                        <textarea class="form-textarea" id="copy-content" placeholder="描述素材内容或剧集看点（如：第3集高能剧情，男主终于表白）"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">文案风格（可多选）</label>
+                        <div class="tag-selector" id="style-tags">
+                            <div class="tag" onclick="toggleTag(this)">情感共鸣</div>
+                            <div class="tag" onclick="toggleTag(this)">悬疑烧脑</div>
+                            <div class="tag" onclick="toggleTag(this)">轻松搞笑</div>
+                            <div class="tag" onclick="toggleTag(this)">热血燃爆</div>
+                            <div class="tag" onclick="toggleTag(this)">唯美浪漫</div>
+                            <div class="tag" onclick="toggleTag(this)">现实扎心</div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">投放平台（可多选）</label>
+                        <div class="platform-selector">
+                            <div class="platform-card" onclick="togglePlatform(this, 'copy')"><span class="platform-icon">🎵</span><span class="platform-name">抖音</span></div>
+                            <div class="platform-card" onclick="togglePlatform(this, 'copy')"><span class="platform-icon">📕</span><span class="platform-name">小红书</span></div>
+                            <div class="platform-card" onclick="togglePlatform(this, 'copy')"><span class="platform-icon">📱</span><span class="platform-name">视频号</span></div>
+                            <div class="platform-card" onclick="togglePlatform(this, 'copy')"><span class="platform-icon">🐦</span><span class="platform-name">微博</span></div>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="generateCopywriting()"><span id="copy-btn-text">生成投放文案</span></button>
+                    <div class="output-area" id="copywriting-output" style="display: none;">
+                        <div class="output-title">📝 多平台文案</div>
+                        <button class="copy-btn" onclick="copyContent('copywriting-content')">复制</button>
+                        <div class="output-content" id="copywriting-content"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== 选号管理 ==================== -->
+            <div id="account-module" class="module">
+                <div class="module-title">
+                    <span class="module-title-icon" style="background: rgba(124,92,252,0.1);">🔍</span>
+                    选号管理
+                </div>
+
+                <!-- AI搜索区 -->
+                <div style="background: linear-gradient(135deg, rgba(124,92,252,0.04), rgba(83,183,111,0.04)); border-radius: var(--radius-md); padding: 1.2rem; border: 1px solid rgba(124,92,252,0.1); margin-bottom: 1.5rem;">
+                    <div class="form-label" style="margin-bottom: 0.8rem;">AI 智能选号</div>
+                    <div class="form-row" style="margin-bottom: 0.8rem;">
+                        <input type="text" class="form-input" id="account-search-keyword" placeholder="剧名/类型/垂类关键词（如：古装剧 影视解说）">
+                        <select class="form-select" id="account-search-platform">
+                            <option value="">全部平台</option>
+                            <option value="抖音">抖音</option>
+                            <option value="小红书">小红书</option>
+                            <option value="视频号">视频号</option>
+                            <option value="微博">微博</option>
                         </select>
                     </div>
+                    <div class="form-row" style="margin-bottom: 0.8rem;">
+                        <select class="form-select" id="account-search-category">
+                            <option value="">全部垂类</option>
+                            <option value="影视解说">影视解说</option>
+                            <option value="追剧安利">追剧安利</option>
+                            <option value="情感语录">情感语录</option>
+                            <option value="时尚穿搭">时尚穿搭</option>
+                            <option value="剧情剪辑">剧情剪辑</option>
+                            <option value="明星八卦">明星八卦</option>
+                        </select>
+                        <select class="form-select" id="account-search-fans">
+                            <option value="">不限粉丝量</option>
+                            <option value="1-5万">1-5万</option>
+                            <option value="5-10万">5-10万</option>
+                            <option value="10-50万">10-50万</option>
+                            <option value="50-100万">50-100万</option>
+                            <option value="100万+">100万+</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-sm" onclick="aiSearchAccounts()"><span id="account-search-btn-text">🔍 AI 搜索达人</span></button>
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label">主演阵容</label>
-                    <input type="text" class="form-input" id="drama-cast" placeholder="主演（如：胡歌、马伊琍、唐嫣）">
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">核心看点（可多选）</label>
-                    <div class="tag-selector" id="highlight-tags">
-                        <div class="tag" onclick="toggleTag(this)">剧情精彩</div>
-                        <div class="tag" onclick="toggleTag(this)">演员阵容</div>
-                        <div class="tag" onclick="toggleTag(this)">制作精良</div>
-                        <div class="tag" onclick="toggleTag(this)">话题热度</div>
-                        <div class="tag" onclick="toggleTag(this)">原著IP</div>
-                        <div class="tag" onclick="toggleTag(this)">情感共鸣</div>
-                        <div class="tag" onclick="toggleTag(this)">视觉效果</div>
-                        <div class="tag" onclick="toggleTag(this)">创新题材</div>
+                <!-- 手动添加 -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                        <button class="btn btn-sm btn-outline" onclick="showAddAccountModal()">+ 手动添加</button>
+                        <button class="btn btn-sm btn-outline" onclick="showCompareView()">📊 对比选中</button>
+                        <button class="btn btn-sm btn-outline" onclick="exportAccounts()">📤 导出列表</button>
+                    </div>
+                    <div style="font-size: 0.82rem; color: var(--text-muted);">
+                        已收藏 <strong id="fav-count">0</strong> 个 / 选中 <strong id="selected-count">0</strong> 个
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label">目标受众特征</label>
-                    <textarea class="form-textarea" id="target-audience" placeholder="描述目标受众特征（如：25-35岁女性，都市白领，喜欢情感剧情，关注时尚潮流）"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">预算与周期</label>
-                    <div class="form-row">
-                        <input type="text" class="form-input" id="budget" placeholder="预算范围（如：50-100万）">
-                        <input type="text" class="form-input" id="duration" placeholder="投放周期（如：30天）">
+                <!-- 达人卡片列表 -->
+                <div id="account-list" class="account-grid">
+                    <div style="grid-column: 1/-1; text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
+                        <div style="font-size: 2.5rem; margin-bottom: 0.8rem;">🔍</div>
+                        <p>输入关键词，AI 为你智能推荐达人</p>
+                        <p style="font-size: 0.8rem; margin-top: 0.3rem;">或点击「手动添加」录入达人信息</p>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label">投放平台（可多选）</label>
-                    <div class="platform-selector">
-                        <div class="platform-card" onclick="togglePlatform(this)">
-                            <span class="platform-icon">🎵</span>
-                            <span class="platform-name">抖音</span>
-                        </div>
-                        <div class="platform-card" onclick="togglePlatform(this)">
-                            <span class="platform-icon">📕</span>
-                            <span class="platform-name">小红书</span>
-                        </div>
-                        <div class="platform-card" onclick="togglePlatform(this)">
-                            <span class="platform-icon">📱</span>
-                            <span class="platform-name">视频号</span>
-                        </div>
-                        <div class="platform-card" onclick="togglePlatform(this)">
-                            <span class="platform-icon">🐦</span>
-                            <span class="platform-name">微博</span>
-                        </div>
-                    </div>
-                </div>
-
-                <button class="btn" onclick="generateStrategy()">
-                    <span id="strategy-btn-text">生成投流策略</span>
-                </button>
-
-                <div class="output-area" id="strategy-output" style="display: none;">
-                    <div class="output-title">📊 投流策略方案</div>
-                    <button class="copy-btn" onclick="copyContent('strategy-content')">复制</button>
-                    <div class="output-content" id="strategy-content"></div>
+                <!-- AI搜索结果 -->
+                <div class="output-area" id="account-search-output" style="display: none;">
+                    <div class="output-title">🤖 AI 选号推荐</div>
+                    <button class="copy-btn" onclick="copyContent('account-search-content')">复制</button>
+                    <div class="output-content" id="account-search-content"></div>
                 </div>
             </div>
 
-            <!-- 文案生成模块 -->
-            <div id="copywriting-module" class="module">
+            <!-- ==================== 投放管理 ==================== -->
+            <div id="campaign-module" class="module">
                 <div class="module-title">
-                    <span class="module-title-icon" style="background: rgba(124,92,252,0.1);">✍️</span>
-                    投放文案生成
+                    <span class="module-title-icon" style="background: rgba(14,165,233,0.1);">📤</span>
+                    投放管理
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label">剧集信息</label>
-                    <input type="text" class="form-input" id="copy-drama-name" placeholder="剧名">
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">素材内容/看点</label>
-                    <textarea class="form-textarea" id="copy-content" placeholder="描述素材内容或剧集看点（如：第3集高能剧情，男主终于表白，情感爆发）"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">文案风格</label>
-                    <div class="tag-selector" id="style-tags">
-                        <div class="tag" onclick="toggleTag(this)">情感共鸣</div>
-                        <div class="tag" onclick="toggleTag(this)">悬疑烧脑</div>
-                        <div class="tag" onclick="toggleTag(this)">轻松搞笑</div>
-                        <div class="tag" onclick="toggleTag(this)">热血燃爆</div>
-                        <div class="tag" onclick="toggleTag(this)">唯美浪漫</div>
-                        <div class="tag" onclick="toggleTag(this)">现实扎心</div>
+                <div class="campaign-header">
+                    <div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.4rem;">当前投放项目</div>
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <input type="text" class="form-input" id="campaign-name" placeholder="项目名称" style="width:200px;display:inline-block;">
+                            <span class="campaign-status active" id="campaign-status-badge">● 投放中</span>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:8px;">
+                        <button class="btn btn-sm" onclick="saveCampaign()">💾 保存</button>
+                        <button class="btn btn-sm btn-outline" onclick="newCampaign()">+ 新建</button>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label">投放平台（可多选）</label>
-                    <div class="platform-selector">
-                        <div class="platform-card" onclick="togglePlatform(this, 'copy')">
-                            <span class="platform-icon">🎵</span>
-                            <span class="platform-name">抖音</span>
+                <div class="form-row" style="margin-bottom: 1.2rem;">
+                    <div class="form-group">
+                        <label class="form-label">投放周期</label>
+                        <div style="display:flex;gap:8px;">
+                            <input type="date" class="form-input" id="campaign-start" style="flex:1;">
+                            <span style="line-height:42px;color:var(--text-muted);">至</span>
+                            <input type="date" class="form-input" id="campaign-end" style="flex:1;">
                         </div>
-                        <div class="platform-card" onclick="togglePlatform(this, 'copy')">
-                            <span class="platform-icon">📕</span>
-                            <span class="platform-name">小红书</span>
-                        </div>
-                        <div class="platform-card" onclick="togglePlatform(this, 'copy')">
-                            <span class="platform-icon">📱</span>
-                            <span class="platform-name">视频号</span>
-                        </div>
-                        <div class="platform-card" onclick="togglePlatform(this, 'copy')">
-                            <span class="platform-icon">🐦</span>
-                            <span class="platform-name">微博</span>
-                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">总预算（万元）</label>
+                        <input type="number" class="form-input" id="campaign-budget" placeholder="如：50">
                     </div>
                 </div>
 
-                <button class="btn" onclick="generateCopywriting()">
-                    <span id="copy-btn-text">生成投放文案</span>
-                </button>
+                <!-- 预算分配 -->
+                <div class="form-label" style="margin-bottom: 0.8rem;">预算分配</div>
+                <div id="budget-allocation">
+                    <div class="data-table-wrap">
+                        <table class="data-table" id="budget-table">
+                            <thead>
+                                <tr>
+                                    <th>平台</th>
+                                    <th>预算（万元）</th>
+                                    <th>占比</th>
+                                    <th>已消耗</th>
+                                    <th>状态</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>🎵 抖音</td>
+                                    <td><input type="number" class="form-input" id="budget-douyin" placeholder="0" style="width:100px;"></td>
+                                    <td id="budget-douyin-pct">-</td>
+                                    <td><input type="number" class="form-input" id="spent-douyin" placeholder="0" style="width:100px;"></td>
+                                    <td><span class="campaign-status active">投放中</span></td>
+                                </tr>
+                                <tr>
+                                    <td>📕 小红书</td>
+                                    <td><input type="number" class="form-input" id="budget-xiaohongshu" placeholder="0" style="width:100px;"></td>
+                                    <td id="budget-xiaohongshu-pct">-</td>
+                                    <td><input type="number" class="form-input" id="spent-xiaohongshu" placeholder="0" style="width:100px;"></td>
+                                    <td><span class="campaign-status active">投放中</span></td>
+                                </tr>
+                                <tr>
+                                    <td>📱 视频号</td>
+                                    <td><input type="number" class="form-input" id="budget-shipinhao" placeholder="0" style="width:100px;"></td>
+                                    <td id="budget-shipinhao-pct">-</td>
+                                    <td><input type="number" class="form-input" id="spent-shipinhao" placeholder="0" style="width:100px;"></td>
+                                    <td><span class="campaign-status paused">预热中</span></td>
+                                </tr>
+                                <tr>
+                                    <td>🐦 微博</td>
+                                    <td><input type="number" class="form-input" id="budget-weibo" placeholder="0" style="width:100px;"></td>
+                                    <td id="budget-weibo-pct">-</td>
+                                    <td><input type="number" class="form-input" id="spent-weibo" placeholder="0" style="width:100px;"></td>
+                                    <td><span class="campaign-status paused">预热中</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
-                <div class="output-area" id="copywriting-output" style="display: none;">
-                    <div class="output-title">📝 多平台文案</div>
-                    <button class="copy-btn" onclick="copyContent('copywriting-content')">复制</button>
-                    <div class="output-content" id="copywriting-content"></div>
+                <!-- 素材追踪 -->
+                <div style="display:flex;justify-content:space-between;align-items:center;margin:1.5rem 0 0.8rem;">
+                    <div class="form-label" style="margin:0;">素材投放追踪</div>
+                    <button class="btn btn-sm btn-outline" onclick="addMaterial()">+ 添加素材</button>
+                </div>
+                <div id="material-list">
+                    <div class="material-item">
+                        <span style="font-size:1.2rem;">🎬</span>
+                        <div style="flex:1;">
+                            <div style="font-weight:600;font-size:0.88rem;">高光剪辑-01</div>
+                            <div style="font-size:0.78rem;color:var(--text-muted);">投放平台：抖音 / 小红书</div>
+                        </div>
+                        <span class="material-status published">已投放</span>
+                    </div>
+                    <div class="material-item">
+                        <span style="font-size:1.2rem;">🎬</span>
+                        <div style="flex:1;">
+                            <div style="font-weight:600;font-size:0.88rem;">情感剪辑-02</div>
+                            <div style="font-size:0.78rem;color:var(--text-muted);">投放平台：视频号</div>
+                        </div>
+                        <span class="material-status published">已投放</span>
+                    </div>
+                    <div class="material-item">
+                        <span style="font-size:1.2rem;">🎬</span>
+                        <div style="flex:1;">
+                            <div style="font-weight:600;font-size:0.88rem;">花絮-03</div>
+                            <div style="font-size:0.78rem;color:var(--text-muted);">投放平台：微博</div>
+                        </div>
+                        <span class="material-status pending">待投放</span>
+                    </div>
                 </div>
             </div>
 
-            <!-- 数据监控模块 -->
+            <!-- ==================== 数据监控 ==================== -->
             <div id="monitor-module" class="module">
                 <div class="module-title">
-                    <span class="module-title-icon" style="background: rgba(14,165,233,0.1);">📊</span>
-                    投放数据监控
+                    <span class="module-title-icon" style="background: rgba(245,158,11,0.1);">📊</span>
+                    数据监控
                 </div>
-                <div class="coming-soon">
-                    <div class="coming-soon-icon">🚧</div>
-                    <h3>数据监控功能正在开发中</h3>
-                    <p>将支持抖音、小红书、视频号、微博四大平台<br>实时数据监控和可视化分析</p>
+
+                <div class="sub-tabs">
+                    <button class="sub-tab active" onclick="switchMonitorTab('monitor-data', this)">数据录入</button>
+                    <button class="sub-tab" onclick="switchMonitorTab('monitor-chart', this)">趋势图表</button>
+                </div>
+
+                <!-- 数据录入 -->
+                <div id="monitor-data" class="sub-module">
+                    <div class="form-row" style="margin-bottom: 1rem;">
+                        <div class="form-group">
+                            <label class="form-label">日期</label>
+                            <input type="date" class="form-input" id="monitor-date">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">平台</label>
+                            <select class="form-select" id="monitor-platform">
+                                <option value="抖音">抖音</option>
+                                <option value="小红书">小红书</option>
+                                <option value="视频号">视频号</option>
+                                <option value="微博">微博</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row" style="margin-bottom: 1rem;">
+                        <div class="form-group">
+                            <label class="form-label">消耗（元）</label>
+                            <input type="number" class="form-input" id="monitor-spend" placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">曝光量</label>
+                            <input type="number" class="form-input" id="monitor-impression" placeholder="0">
+                        </div>
+                    </div>
+                    <div class="form-row" style="margin-bottom: 1rem;">
+                        <div class="form-group">
+                            <label class="form-label">点击量</label>
+                            <input type="number" class="form-input" id="monitor-click" placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">互动量（赞评藏转）</label>
+                            <input type="number" class="form-input" id="monitor-interact" placeholder="0">
+                        </div>
+                    </div>
+                    <div class="form-row" style="margin-bottom: 1.2rem;">
+                        <div class="form-group">
+                            <label class="form-label">转化量</label>
+                            <input type="number" class="form-input" id="monitor-convert" placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">备注</label>
+                            <input type="text" class="form-input" id="monitor-note" placeholder="可选">
+                        </div>
+                    </div>
+                    <button class="btn btn-sm" onclick="addMonitorData()">📊 录入数据</button>
+
+                    <!-- 历史数据表 -->
+                    <div style="margin-top: 1.5rem;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem;">
+                            <div class="form-label" style="margin:0;">已录入数据</div>
+                            <button class="btn btn-sm btn-secondary" onclick="clearMonitorData()">🗑 清空</button>
+                        </div>
+                        <div class="data-table-wrap">
+                            <table class="data-table" id="monitor-data-table">
+                                <thead>
+                                    <tr><th>日期</th><th>平台</th><th>消耗</th><th>曝光</th><th>点击</th><th>互动</th><th>转化</th><th>操作</th></tr>
+                                </thead>
+                                <tbody id="monitor-tbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 趋势图表 -->
+                <div id="monitor-chart" class="sub-module" style="display:none;">
+                    <div class="stat-grid" id="monitor-stats">
+                        <div class="stat-card"><div class="stat-value" id="stat-spend">0</div><div class="stat-label">总消耗（元）</div></div>
+                        <div class="stat-card"><div class="stat-value" id="stat-impression">0</div><div class="stat-label">总曝光</div></div>
+                        <div class="stat-card"><div class="stat-value" id="stat-ctr">0%</div><div class="stat-label">平均点击率</div></div>
+                        <div class="stat-card"><div class="stat-value" id="stat-cvr">0%</div><div class="stat-label">平均转化率</div></div>
+                    </div>
+
+                    <div class="chart-row">
+                        <div style="background:var(--bg-input);border-radius:var(--radius-md);padding:1rem;">
+                            <div style="font-weight:600;font-size:0.9rem;margin-bottom:0.5rem;">消耗 & 曝光趋势</div>
+                            <div class="chart-container"><canvas id="chart-trend"></canvas></div>
+                        </div>
+                        <div style="background:var(--bg-input);border-radius:var(--radius-md);padding:1rem;">
+                            <div style="font-weight:600;font-size:0.9rem;margin-bottom:0.5rem;">平台消耗占比</div>
+                            <div class="chart-container"><canvas id="chart-pie"></canvas></div>
+                        </div>
+                    </div>
+
+                    <div style="background:var(--bg-input);border-radius:var(--radius-md);padding:1rem;margin-top:1rem;">
+                        <div style="font-weight:600;font-size:0.9rem;margin-bottom:0.5rem;">转化漏斗</div>
+                        <div class="chart-container" style="height:250px;"><canvas id="chart-funnel"></canvas></div>
+                    </div>
                 </div>
             </div>
 
-            <!-- 效果分析模块 -->
+            <!-- ==================== 效果分析 ==================== -->
             <div id="analysis-module" class="module">
                 <div class="module-title">
-                    <span class="module-title-icon" style="background: rgba(34,197,94,0.1);">📈</span>
-                    效果分析报告
+                    <span class="module-title-icon" style="background: rgba(239,68,68,0.1);">📈</span>
+                    效果分析
                 </div>
-                <div class="coming-soon">
-                    <div class="coming-soon-icon">🚧</div>
-                    <h3>效果分析功能正在开发中</h3>
-                    <p>将支持素材效果分析、用户行为分析<br>ROI计算、优化建议生成</p>
+
+                <div class="alert alert-info" style="margin-bottom:1.5rem;">
+                    💡 AI 将基于数据监控中录入的数据，自动生成效果分析报告。请先在「数据监控」中录入数据。
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">分析维度（可多选）</label>
+                    <div class="tag-selector" id="analysis-tags">
+                        <div class="tag" onclick="toggleTag(this)">ROI 分析</div>
+                        <div class="tag" onclick="toggleTag(this)">素材效果排名</div>
+                        <div class="tag" onclick="toggleTag(this)">受众行为分析</div>
+                        <div class="tag" onclick="toggleTag(this)">异常预警</div>
+                        <div class="tag" onclick="toggleTag(this)">优化建议</div>
+                        <div class="tag" onclick="toggleTag(this)">竞品对比</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">补充说明（可选）</label>
+                    <textarea class="form-textarea" id="analysis-extra" placeholder="额外需要分析的内容或特殊关注点"></textarea>
+                </div>
+
+                <button class="btn" onclick="generateAnalysis()"><span id="analysis-btn-text">🤖 生成分析报告</span></button>
+
+                <div class="output-area" id="analysis-output" style="display: none;">
+                    <div class="output-title">📈 效果分析报告</div>
+                    <button class="copy-btn" onclick="copyContent('analysis-content')">复制</button>
+                    <div class="output-content" id="analysis-content"></div>
                 </div>
             </div>
+
         </div>
+    </div>
 
-        <!-- 右侧边栏 -->
-        <div class="right-sidebar">
-            <div class="sidebar-title">历史方案</div>
-            <div id="history-list">
-                <div class="history-item">
-                    <div class="history-item-title">繁花 - 投流策略</div>
-                    <div class="history-item-date">2024-01-15</div>
-                </div>
-                <div class="history-item">
-                    <div class="history-item-title">繁花 - 第3集文案</div>
-                    <div class="history-item-date">2024-01-16</div>
-                </div>
+    <!-- FOOTER -->
+    <div class="footer">
+        如有问题，请联系 fannyhuang（微信：icy810）
+    </div>
+
+    <!-- MODAL: 添加达人 -->
+    <div id="modal-add-account" class="modal-overlay" style="display:none;">
+        <div class="modal">
+            <div class="modal-title">➕ 手动添加达人</div>
+            <div class="form-group"><label class="form-label">达人昵称</label><input type="text" class="form-input" id="add-account-name" placeholder="达人昵称"></div>
+            <div class="form-group"><label class="form-label">平台</label>
+                <select class="form-select" id="add-account-platform"><option value="抖音">抖音</option><option value="小红书">小红书</option><option value="视频号">视频号</option><option value="微博">微博</option></select>
             </div>
-
-            <div class="sidebar-title" style="margin-top: 1.5rem;">数据概览</div>
-            <div class="data-overview">
-                <div class="data-overview-value">-</div>
-                <div class="data-overview-label">总消耗</div>
+            <div class="form-row">
+                <div class="form-group"><label class="form-label">粉丝量</label><input type="text" class="form-input" id="add-account-fans" placeholder="如：12.3万"></div>
+                <div class="form-group"><label class="form-label">互动率</label><input type="text" class="form-input" id="add-account-rate" placeholder="如：3.8%"></div>
+            </div>
+            <div class="form-group"><label class="form-label">内容垂类</label><input type="text" class="form-input" id="add-account-category" placeholder="如：影视解说"></div>
+            <div class="form-group"><label class="form-label">备注</label><input type="text" class="form-input" id="add-account-note" placeholder="报价、调性等"></div>
+            <div class="modal-actions">
+                <button class="btn btn-sm btn-secondary" onclick="closeModal('modal-add-account')">取消</button>
+                <button class="btn btn-sm" onclick="addAccountManual()">添加</button>
             </div>
         </div>
     </div>
 
-    <script>
-        const API_BASE = '';
+    <!-- MODAL: 添加素材 -->
+    <div id="modal-add-material" class="modal-overlay" style="display:none;">
+        <div class="modal">
+            <div class="modal-title">➕ 添加素材</div>
+            <div class="form-group"><label class="form-label">素材名称</label><input type="text" class="form-input" id="add-material-name" placeholder="如：高光剪辑-04"></div>
+            <div class="form-group"><label class="form-label">投放平台</label>
+                <div class="tag-selector" id="material-platform-tags">
+                    <div class="tag" onclick="toggleTag(this)">抖音</div>
+                    <div class="tag" onclick="toggleTag(this)">小红书</div>
+                    <div class="tag" onclick="toggleTag(this)">视频号</div>
+                    <div class="tag" onclick="toggleTag(this)">微博</div>
+                </div>
+            </div>
+            <div class="form-group"><label class="form-label">状态</label>
+                <select class="form-select" id="add-material-status"><option value="draft">草稿</option><option value="pending">待投放</option><option value="published">已投放</option></select>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-sm btn-secondary" onclick="closeModal('modal-add-material')">取消</button>
+                <button class="btn btn-sm" onclick="addMaterialConfirm()">添加</button>
+            </div>
+        </div>
+    </div>
 
-        let selectedTags = [];
-        let selectedPlatforms = [];
-        let selectedStyles = [];
-        let selectedCopyPlatforms = [];
+<script>
+const API_BASE = '';
 
-        // 模块切换 - 修复：传入 button 引用
-        function switchModule(moduleName, btn) {
-            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-            if (btn) {
-                btn.classList.add('active');
-            } else {
-                // fallback
-                document.querySelectorAll('.nav-item').forEach(item => {
-                    if (item.textContent.trim() === {strategy:'策略生成',copywriting:'文案生成',monitor:'数据监控',analysis:'效果分析'}[moduleName]) {
-                        item.classList.add('active');
-                    }
-                });
-            }
+// ===== STATE =====
+let selectedTags = [];
+let selectedPlatforms = [];
+let selectedStyles = [];
+let selectedCopyPlatforms = [];
+let accounts = JSON.parse(localStorage.getItem('adflow_accounts') || '[]');
+let monitorData = JSON.parse(localStorage.getItem('adflow_monitor') || '[]');
+let campaigns = JSON.parse(localStorage.getItem('adflow_campaigns') || '[]');
+let currentCampaign = JSON.parse(localStorage.getItem('adflow_current_campaign') || 'null');
+let selectedAccounts = new Set();
 
-            document.querySelectorAll('.module').forEach(module => module.classList.remove('active'));
-            document.getElementById(moduleName + '-module').classList.add('active');
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+    // Set today's date for monitor
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('monitor-date').value = today;
+
+    // Load campaign
+    if (currentCampaign) {
+        document.getElementById('campaign-name').value = currentCampaign.name || '';
+        document.getElementById('campaign-start').value = currentCampaign.start || '';
+        document.getElementById('campaign-end').value = currentCampaign.end || '';
+        document.getElementById('campaign-budget').value = currentCampaign.budget || '';
+        ['douyin','xiaohongshu','shipinhao','weibo'].forEach(p => {
+            const budgetEl = document.getElementById('budget-' + p);
+            const spentEl = document.getElementById('spent-' + p);
+            if (budgetEl) budgetEl.value = currentCampaign.budgets?.[p] || '';
+            if (spentEl) spentEl.value = currentCampaign.spent?.[p] || '';
+        });
+    }
+
+    renderMonitorTable();
+    renderAccountList();
+
+    // Budget auto-calc
+    ['budget-douyin','budget-xiaohongshu','budget-shipinhao','budget-weibo'].forEach(id => {
+        document.getElementById(id)?.addEventListener('input', updateBudgetPcts);
+    });
+});
+
+// ===== MODULE SWITCH =====
+function switchModule(moduleName, btn) {
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    document.querySelectorAll('.module').forEach(m => m.classList.remove('active'));
+    document.getElementById(moduleName + '-module').classList.add('active');
+    if (moduleName === 'monitor') renderMonitorCharts();
+}
+
+function switchSubTab(tabId, btn) {
+    btn.parentElement.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    btn.closest('.module').querySelectorAll('.sub-module').forEach(m => m.style.display = 'none');
+    document.getElementById(tabId).style.display = 'block';
+}
+
+function switchMonitorTab(tabId, btn) {
+    btn.parentElement.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('#monitor-module .sub-module').forEach(m => m.style.display = 'none');
+    document.getElementById(tabId).style.display = 'block';
+    if (tabId === 'monitor-chart') renderMonitorCharts();
+}
+
+// ===== TAG / PLATFORM TOGGLES =====
+function toggleTag(el) {
+    el.classList.toggle('selected');
+}
+
+function togglePlatform(el, type) {
+    el.classList.toggle('selected');
+}
+
+function getSelectedTags(containerId) {
+    return Array.from(document.querySelectorAll('#' + containerId + ' .tag.selected')).map(t => t.textContent.trim());
+}
+
+function getSelectedPlatforms(container) {
+    return Array.from(container.querySelectorAll('.platform-card.selected')).map(c => c.querySelector('.platform-name').textContent);
+}
+
+// ===== COPY =====
+function copyContent(id) {
+    const el = document.getElementById(id);
+    navigator.clipboard.writeText(el.innerText).then(() => {
+        const btn = el.parentElement.querySelector('.copy-btn');
+        btn.textContent = '已复制';
+        setTimeout(() => btn.textContent = '复制', 1500);
+    });
+}
+
+// ===== MODAL =====
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+function showAddAccountModal() { document.getElementById('modal-add-account').style.display = 'flex'; }
+
+// ===== STRATEGY GENERATION =====
+async function generateStrategy() {
+    const dramaName = document.getElementById('drama-name').value;
+    const dramaType = document.getElementById('drama-type').value;
+    const cast = document.getElementById('drama-cast').value;
+    const targetAudience = document.getElementById('target-audience').value;
+    const budget = document.getElementById('budget').value;
+    const duration = document.getElementById('duration').value;
+    const highlights = getSelectedTags('highlight-tags');
+    const platforms = getSelectedPlatforms(document.getElementById('strategy-gen'));
+
+    if (!dramaName || !dramaType || platforms.length === 0) { alert('请填写剧名、类型并选择至少一个投放平台'); return; }
+
+    const btnText = document.getElementById('strategy-btn-text');
+    btnText.innerHTML = '<span class="loading"></span>生成中...';
+    document.querySelector('#strategy-gen .btn').disabled = true;
+    const outputArea = document.getElementById('strategy-output');
+    const outputContent = document.getElementById('strategy-content');
+    outputArea.style.display = 'block';
+    outputContent.textContent = '';
+
+    try {
+        const response = await fetch(API_BASE + '/api/generate-strategy', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ dramaName, dramaType, cast, highlights, targetAudience, budget, duration, platforms })
+        });
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let fullText = '';
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            fullText += decoder.decode(value, { stream: true });
+            outputContent.innerHTML = marked.parse(fullText);
         }
+    } catch (e) {
+        outputContent.textContent = '生成失败，请检查网络连接或联系管理员。如需配置 API Key，请参考部署教程。';
+    }
+    btnText.textContent = '生成投流策略';
+    document.querySelector('#strategy-gen .btn').disabled = false;
+}
 
-        // 标签切换
-        function toggleTag(element) {
-            element.classList.toggle('selected');
-            const tagText = element.textContent.trim();
-            const parent = element.parentElement;
+// ===== COPYWRITING GENERATION =====
+async function generateCopywriting() {
+    const dramaName = document.getElementById('copy-drama-name').value;
+    const content = document.getElementById('copy-content').value;
+    const styles = getSelectedTags('style-tags');
+    const platforms = getSelectedPlatforms(document.getElementById('strategy-copy'));
 
-            if (parent.id === 'highlight-tags') {
-                if (element.classList.contains('selected')) {
-                    selectedTags.push(tagText);
-                } else {
-                    selectedTags = selectedTags.filter(t => t !== tagText);
-                }
-            } else if (parent.id === 'style-tags') {
-                if (element.classList.contains('selected')) {
-                    selectedStyles.push(tagText);
-                } else {
-                    selectedStyles = selectedStyles.filter(s => s !== tagText);
-                }
+    if (!dramaName || !content) { alert('请填写剧名和素材内容'); return; }
+
+    const btnText = document.getElementById('copy-btn-text');
+    btnText.innerHTML = '<span class="loading"></span>生成中...';
+    document.querySelector('#strategy-copy .btn').disabled = true;
+    const outputArea = document.getElementById('copywriting-output');
+    const outputContent = document.getElementById('copywriting-content');
+    outputArea.style.display = 'block';
+    outputContent.textContent = '';
+
+    try {
+        const response = await fetch(API_BASE + '/api/generate-copywriting', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ dramaName, content, styles, platforms })
+        });
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let fullText = '';
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            fullText += decoder.decode(value, { stream: true });
+            outputContent.innerHTML = marked.parse(fullText);
+        }
+    } catch (e) {
+        outputContent.textContent = '生成失败，请检查网络连接或联系管理员。';
+    }
+    btnText.textContent = '生成投放文案';
+    document.querySelector('#strategy-copy .btn').disabled = false;
+}
+
+// ===== ACCOUNT MANAGEMENT =====
+function renderAccountList() {
+    const list = document.getElementById('account-list');
+    if (accounts.length === 0) {
+        list.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:3rem 1rem;color:var(--text-muted);"><div style="font-size:2.5rem;margin-bottom:0.8rem;">🔍</div><p>输入关键词，AI 为你智能推荐达人</p><p style="font-size:0.8rem;margin-top:0.3rem;">或点击「手动添加」录入达人信息</p></div>';
+    } else {
+        list.innerHTML = accounts.map((a, i) => `
+            <div class="account-card ${selectedAccounts.has(i) ? 'selected' : ''}" onclick="toggleAccountSelect(${i})">
+                <button class="fav-btn ${a.fav ? 'active' : ''}" onclick="event.stopPropagation();toggleFav(${i})">${a.fav ? '⭐' : '☆'}</button>
+                <div class="account-header">
+                    <div class="account-avatar">${a.name.charAt(0)}</div>
+                    <div>
+                        <div class="account-name">${a.name}</div>
+                        <div class="account-platform">${a.platform} · ${a.category || '未分类'}</div>
+                    </div>
+                </div>
+                <div class="account-stats">
+                    <div class="account-stat"><div class="account-stat-value">${a.fans || '-'}</div><div class="account-stat-label">粉丝量</div></div>
+                    <div class="account-stat"><div class="account-stat-value">${a.rate || '-'}</div><div class="account-stat-label">互动率</div></div>
+                </div>
+                ${a.note ? `<div style="font-size:0.78rem;color:var(--text-muted);margin-top:0.5rem;">${a.note}</div>` : ''}
+                <div class="account-actions">
+                    <button class="btn btn-sm btn-danger" style="padding:4px 10px;font-size:0.75rem;" onclick="event.stopPropagation();removeAccount(${i})">删除</button>
+                </div>
+            </div>
+        `).join('');
+    }
+    document.getElementById('fav-count').textContent = accounts.filter(a => a.fav).length;
+    document.getElementById('selected-count').textContent = selectedAccounts.size;
+}
+
+function toggleAccountSelect(i) {
+    if (selectedAccounts.has(i)) selectedAccounts.delete(i); else selectedAccounts.add(i);
+    renderAccountList();
+}
+
+function toggleFav(i) {
+    accounts[i].fav = !accounts[i].fav;
+    saveAccounts();
+    renderAccountList();
+}
+
+function removeAccount(i) {
+    if (confirm('确认删除该达人？')) {
+        accounts.splice(i, 1);
+        selectedAccounts.delete(i);
+        saveAccounts();
+        renderAccountList();
+    }
+}
+
+function saveAccounts() { localStorage.setItem('adflow_accounts', JSON.stringify(accounts)); }
+
+function addAccountManual() {
+    const name = document.getElementById('add-account-name').value.trim();
+    if (!name) { alert('请输入达人昵称'); return; }
+    accounts.push({
+        name,
+        platform: document.getElementById('add-account-platform').value,
+        fans: document.getElementById('add-account-fans').value.trim(),
+        rate: document.getElementById('add-account-rate').value.trim(),
+        category: document.getElementById('add-account-category').value.trim(),
+        note: document.getElementById('add-account-note').value.trim(),
+        fav: false
+    });
+    saveAccounts();
+    renderAccountList();
+    closeModal('modal-add-account');
+    document.getElementById('add-account-name').value = '';
+    document.getElementById('add-account-fans').value = '';
+    document.getElementById('add-account-rate').value = '';
+    document.getElementById('add-account-category').value = '';
+    document.getElementById('add-account-note').value = '';
+}
+
+async function aiSearchAccounts() {
+    const keyword = document.getElementById('account-search-keyword').value.trim();
+    const platform = document.getElementById('account-search-platform').value;
+    const category = document.getElementById('account-search-category').value;
+    const fans = document.getElementById('account-search-fans').value;
+
+    if (!keyword) { alert('请输入搜索关键词'); return; }
+
+    const btnText = document.getElementById('account-search-btn-text');
+    btnText.innerHTML = '<span class="loading"></span>搜索中...';
+    const outputArea = document.getElementById('account-search-output');
+    const outputContent = document.getElementById('account-search-content');
+    outputArea.style.display = 'block';
+    outputContent.textContent = '';
+
+    try {
+        const response = await fetch(API_BASE + '/api/search-accounts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ keyword, platform, category, fans })
+        });
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let fullText = '';
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            fullText += decoder.decode(value, { stream: true });
+            outputContent.innerHTML = marked.parse(fullText);
+        }
+    } catch (e) {
+        outputContent.textContent = 'AI 搜索失败，请检查网络连接。你可以手动添加达人信息。';
+    }
+    btnText.textContent = '🔍 AI 搜索达人';
+}
+
+function exportAccounts() {
+    if (accounts.length === 0) { alert('暂无达人数据可导出'); return; }
+    const headers = ['昵称', '平台', '粉丝量', '互动率', '垂类', '备注', '已收藏'];
+    const rows = accounts.map(a => [a.name, a.platform, a.fans, a.rate, a.category, a.note, a.fav ? '是' : '否']);
+    const csv = [headers.join(','), ...rows.map(r => r.map(v => `"${v || ''}"`).join(','))].join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = '选号列表_' + new Date().toISOString().split('T')[0] + '.csv';
+    link.click();
+}
+
+function showCompareView() {
+    if (selectedAccounts.size < 2) { alert('请至少选中 2 个达人进行对比'); return; }
+    const selected = Array.from(selectedAccounts).map(i => accounts[i]).filter(Boolean);
+    let html = '## 📊 达人对比分析\n\n';
+    html += '| 维度 | ' + selected.map(a => a.name).join(' | ') + ' |\n';
+    html += '| --- | ' + selected.map(() => '---').join(' | ') + ' |\n';
+    html += '| 平台 | ' + selected.map(a => a.platform).join(' | ') + ' |\n';
+    html += '| 粉丝量 | ' + selected.map(a => a.fans || '-').join(' | ') + ' |\n';
+    html += '| 互动率 | ' + selected.map(a => a.rate || '-').join(' | ') + ' |\n';
+    html += '| 垂类 | ' + selected.map(a => a.category || '-').join(' | ') + ' |\n';
+    html += '| 备注 | ' + selected.map(a => a.note || '-').join(' | ') + ' |\n';
+    const outputArea = document.getElementById('account-search-output');
+    const outputContent = document.getElementById('account-search-content');
+    outputArea.style.display = 'block';
+    outputContent.innerHTML = marked.parse(html);
+}
+
+// ===== CAMPAIGN MANAGEMENT =====
+function saveCampaign() {
+    currentCampaign = {
+        name: document.getElementById('campaign-name').value,
+        start: document.getElementById('campaign-start').value,
+        end: document.getElementById('campaign-end').value,
+        budget: document.getElementById('campaign-budget').value,
+        budgets: {
+            douyin: document.getElementById('budget-douyin').value,
+            xiaohongshu: document.getElementById('budget-xiaohongshu').value,
+            shipinhao: document.getElementById('budget-shipinhao').value,
+            weibo: document.getElementById('budget-weibo').value
+        },
+        spent: {
+            douyin: document.getElementById('spent-douyin').value,
+            xiaohongshu: document.getElementById('spent-xiaohongshu').value,
+            shipinhao: document.getElementById('spent-shipinhao').value,
+            weibo: document.getElementById('spent-weibo').value
+        }
+    };
+    localStorage.setItem('adflow_current_campaign', JSON.stringify(currentCampaign));
+    updateBudgetPcts();
+    alert('投放计划已保存');
+}
+
+function newCampaign() {
+    if (!confirm('将清空当前投放计划，确认新建？')) return;
+    currentCampaign = null;
+    localStorage.removeItem('adflow_current_campaign');
+    document.getElementById('campaign-name').value = '';
+    document.getElementById('campaign-start').value = '';
+    document.getElementById('campaign-end').value = '';
+    document.getElementById('campaign-budget').value = '';
+    ['douyin','xiaohongshu','shipinhao','weibo'].forEach(p => {
+        document.getElementById('budget-' + p).value = '';
+        document.getElementById('spent-' + p).value = '';
+    });
+    updateBudgetPcts();
+}
+
+function updateBudgetPcts() {
+    const total = ['douyin','xiaohongshu','shipinhao','weibo'].reduce((s, p) => s + (parseFloat(document.getElementById('budget-' + p)?.value) || 0), 0);
+    ['douyin','xiaohongshu','shipinhao','weibo'].forEach(p => {
+        const el = document.getElementById('budget-' + p + '-pct');
+        if (el) {
+            const val = parseFloat(document.getElementById('budget-' + p)?.value) || 0;
+            el.textContent = total > 0 ? ((val / total) * 100).toFixed(1) + '%' : '-';
+        }
+    });
+}
+
+function addMaterial() { document.getElementById('modal-add-material').style.display = 'flex'; }
+
+function addMaterialConfirm() {
+    const name = document.getElementById('add-material-name').value.trim();
+    if (!name) { alert('请输入素材名称'); return; }
+    const platforms = getSelectedTags('material-platform-tags');
+    const status = document.getElementById('add-material-status').value;
+    const statusMap = { draft: '草稿', pending: '待投放', published: '已投放' };
+    const statusClass = { draft: 'draft', pending: 'pending', published: 'published' };
+    const html = `<div class="material-item">
+        <span style="font-size:1.2rem;">🎬</span>
+        <div style="flex:1;">
+            <div style="font-weight:600;font-size:0.88rem;">${name}</div>
+            <div style="font-size:0.78rem;color:var(--text-muted);">投放平台：${platforms.join(' / ') || '未指定'}</div>
+        </div>
+        <span class="material-status ${statusClass[status]}">${statusMap[status]}</span>
+    </div>`;
+    document.getElementById('material-list').insertAdjacentHTML('beforeend', html);
+    closeModal('modal-add-material');
+    document.getElementById('add-material-name').value = '';
+    document.querySelectorAll('#material-platform-tags .tag').forEach(t => t.classList.remove('selected'));
+}
+
+// ===== MONITOR DATA =====
+function addMonitorData() {
+    const date = document.getElementById('monitor-date').value;
+    const platform = document.getElementById('monitor-platform').value;
+    const spend = parseFloat(document.getElementById('monitor-spend').value) || 0;
+    const impression = parseFloat(document.getElementById('monitor-impression').value) || 0;
+    const click = parseFloat(document.getElementById('monitor-click').value) || 0;
+    const interact = parseFloat(document.getElementById('monitor-interact').value) || 0;
+    const convert = parseFloat(document.getElementById('monitor-convert').value) || 0;
+    const note = document.getElementById('monitor-note').value.trim();
+
+    if (!date) { alert('请选择日期'); return; }
+    if (spend === 0 && impression === 0) { alert('请至少填写消耗或曝光量'); return; }
+
+    monitorData.push({ date, platform, spend, impression, click, interact, convert, note });
+    localStorage.setItem('adflow_monitor', JSON.stringify(monitorData));
+    renderMonitorTable();
+
+    // Reset inputs
+    document.getElementById('monitor-spend').value = '';
+    document.getElementById('monitor-impression').value = '';
+    document.getElementById('monitor-click').value = '';
+    document.getElementById('monitor-interact').value = '';
+    document.getElementById('monitor-convert').value = '';
+    document.getElementById('monitor-note').value = '';
+}
+
+function renderMonitorTable() {
+    const tbody = document.getElementById('monitor-tbody');
+    if (monitorData.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:2rem;">暂无数据，请先录入</td></tr>';
+        return;
+    }
+    tbody.innerHTML = monitorData.map((d, i) => `
+        <tr>
+            <td>${d.date}</td>
+            <td>${d.platform}</td>
+            <td>${d.spend.toLocaleString()}</td>
+            <td>${d.impression.toLocaleString()}</td>
+            <td>${d.click.toLocaleString()}</td>
+            <td>${d.interact.toLocaleString()}</td>
+            <td>${d.convert.toLocaleString()}</td>
+            <td><button class="btn btn-sm btn-danger" style="padding:3px 8px;font-size:0.72rem;" onclick="removeMonitorRow(${i})">删</button></td>
+        </tr>
+    `).join('');
+}
+
+function removeMonitorRow(i) {
+    monitorData.splice(i, 1);
+    localStorage.setItem('adflow_monitor', JSON.stringify(monitorData));
+    renderMonitorTable();
+}
+
+function clearMonitorData() {
+    if (!confirm('确认清空所有监控数据？此操作不可撤销。')) return;
+    monitorData = [];
+    localStorage.setItem('adflow_monitor', JSON.stringify(monitorData));
+    renderMonitorTable();
+}
+
+// ===== MONITOR CHARTS =====
+let trendChart = null, pieChart = null, funnelChart = null;
+
+function renderMonitorCharts() {
+    if (monitorData.length === 0) return;
+
+    // Stats
+    const totalSpend = monitorData.reduce((s, d) => s + d.spend, 0);
+    const totalImpression = monitorData.reduce((s, d) => s + d.impression, 0);
+    const totalClick = monitorData.reduce((s, d) => s + d.click, 0);
+    const totalConvert = monitorData.reduce((s, d) => s + d.convert, 0);
+    document.getElementById('stat-spend').textContent = totalSpend.toLocaleString();
+    document.getElementById('stat-impression').textContent = totalImpression.toLocaleString();
+    document.getElementById('stat-ctr').textContent = totalImpression > 0 ? ((totalClick / totalImpression) * 100).toFixed(2) + '%' : '0%';
+    document.getElementById('stat-cvr').textContent = totalClick > 0 ? ((totalConvert / totalClick) * 100).toFixed(2) + '%' : '0%';
+
+    // Aggregate by date
+    const byDate = {};
+    monitorData.forEach(d => {
+        if (!byDate[d.date]) byDate[d.date] = { spend: 0, impression: 0, click: 0 };
+        byDate[d.date].spend += d.spend;
+        byDate[d.date].impression += d.impression;
+        byDate[d.date].click += d.click;
+    });
+    const dates = Object.keys(byDate).sort();
+
+    // Trend chart
+    if (trendChart) trendChart.destroy();
+    trendChart = new Chart(document.getElementById('chart-trend'), {
+        type: 'line',
+        data: {
+            labels: dates.map(d => d.slice(5)),
+            datasets: [
+                { label: '消耗(元)', data: dates.map(d => byDate[d].spend), borderColor: '#53B76F', backgroundColor: 'rgba(83,183,111,0.1)', fill: true, tension: 0.3, yAxisID: 'y' },
+                { label: '曝光量', data: dates.map(d => byDate[d].impression), borderColor: '#7C5CFC', backgroundColor: 'rgba(124,92,252,0.1)', fill: true, tension: 0.3, yAxisID: 'y1' }
+            ]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { position: 'top', labels: { usePointStyle: true, font: { size: 11 } } } },
+            scales: {
+                y: { type: 'linear', position: 'left', title: { display: true, text: '消耗(元)' }, grid: { color: 'rgba(0,0,0,0.05)' } },
+                y1: { type: 'linear', position: 'right', title: { display: true, text: '曝光量' }, grid: { drawOnChartArea: false } }
             }
         }
+    });
 
-        // 平台选择
-        function togglePlatform(element, type = 'strategy') {
-            element.classList.toggle('selected');
-            const platformName = element.querySelector('.platform-name').textContent;
+    // Pie chart - by platform
+    const byPlatform = {};
+    monitorData.forEach(d => { byPlatform[d.platform] = (byPlatform[d.platform] || 0) + d.spend; });
+    if (pieChart) pieChart.destroy();
+    pieChart = new Chart(document.getElementById('chart-pie'), {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(byPlatform),
+            datasets: [{ data: Object.values(byPlatform), backgroundColor: ['#53B76F', '#DD7694', '#7C5CFC', '#F59E0B'], borderWidth: 0 }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, font: { size: 11 } } } } }
+    });
 
-            if (type === 'strategy') {
-                if (element.classList.contains('selected')) {
-                    selectedPlatforms.push(platformName);
-                } else {
-                    selectedPlatforms = selectedPlatforms.filter(p => p !== platformName);
-                }
-            } else {
-                if (element.classList.contains('selected')) {
-                    selectedCopyPlatforms.push(platformName);
-                } else {
-                    selectedCopyPlatforms = selectedCopyPlatforms.filter(p => p !== platformName);
-                }
-            }
+    // Funnel chart
+    if (funnelChart) funnelChart.destroy();
+    funnelChart = new Chart(document.getElementById('chart-funnel'), {
+        type: 'bar',
+        data: {
+            labels: ['曝光', '点击', '互动', '转化'],
+            datasets: [{
+                data: [totalImpression, totalClick, monitorData.reduce((s, d) => s + d.interact, 0), totalConvert],
+                backgroundColor: ['rgba(14,165,233,0.7)', 'rgba(83,183,111,0.7)', 'rgba(124,92,252,0.7)', 'rgba(245,158,11,0.7)'],
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+            plugins: { legend: { display: false } },
+            scales: { x: { grid: { color: 'rgba(0,0,0,0.05)' } }, y: { grid: { display: false } } }
         }
+    });
+}
 
-        // 复制内容
-        function copyContent(id) {
-            const el = document.getElementById(id);
-            const text = el.innerText;
-            navigator.clipboard.writeText(text).then(() => {
-                const btn = el.parentElement.querySelector('.copy-btn');
-                btn.textContent = '已复制';
-                setTimeout(() => btn.textContent = '复制', 1500);
-            });
+// ===== ANALYSIS =====
+async function generateAnalysis() {
+    const dimensions = getSelectedTags('analysis-tags');
+    const extra = document.getElementById('analysis-extra').value.trim();
+
+    if (dimensions.length === 0) { alert('请至少选择一个分析维度'); return; }
+    if (monitorData.length === 0) { alert('请先在「数据监控」中录入数据'); return; }
+
+    const btnText = document.getElementById('analysis-btn-text');
+    btnText.innerHTML = '<span class="loading"></span>分析中...';
+    document.querySelector('#analysis-module .btn').disabled = true;
+
+    const outputArea = document.getElementById('analysis-output');
+    const outputContent = document.getElementById('analysis-content');
+    outputArea.style.display = 'block';
+    outputContent.textContent = '';
+
+    try {
+        const response = await fetch(API_BASE + '/api/generate-analysis', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ data: monitorData, dimensions, extra, campaign: currentCampaign })
+        });
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let fullText = '';
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            fullText += decoder.decode(value, { stream: true });
+            outputContent.innerHTML = marked.parse(fullText);
         }
-
-        // 生成策略
-        async function generateStrategy() {
-            const dramaName = document.getElementById('drama-name').value;
-            const dramaType = document.getElementById('drama-type').value;
-            const cast = document.getElementById('drama-cast').value;
-            const targetAudience = document.getElementById('target-audience').value;
-            const budget = document.getElementById('budget').value;
-            const duration = document.getElementById('duration').value;
-
-            if (!dramaName || !dramaType || selectedPlatforms.length === 0) {
-                alert('请填写剧名、类型并选择至少一个投放平台');
-                return;
-            }
-
-            const btnText = document.getElementById('strategy-btn-text');
-            const originalText = btnText.textContent;
-            btnText.innerHTML = '<span class="loading"></span>生成中...';
-            document.querySelector('#strategy-module .btn').disabled = true;
-
-            const outputArea = document.getElementById('strategy-output');
-            const outputContent = document.getElementById('strategy-content');
-            outputArea.style.display = 'block';
-            outputContent.textContent = '';
-
-            try {
-                const response = await fetch(API_BASE + '/api/generate-strategy', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        dramaName, dramaType, cast,
-                        highlights: selectedTags,
-                        targetAudience, budget, duration,
-                        platforms: selectedPlatforms
-                    })
-                });
-
-                const reader = response.body.getReader();
-                const decoder = new TextDecoder();
-                let fullText = '';
-
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) break;
-                    const chunk = decoder.decode(value, { stream: true });
-                    fullText += chunk;
-                    outputContent.innerHTML = marked.parse(fullText);
-                    outputContent.scrollTop = outputContent.scrollHeight;
-                }
-
-                document.getElementById('current-drama').textContent = dramaName;
-                document.getElementById('current-type').textContent = dramaType;
-                document.getElementById('current-status').textContent = '投放中';
-
-            } catch (error) {
-                outputContent.textContent = '生成失败，请检查网络连接或联系管理员';
-                console.error('Error:', error);
-            }
-
-            btnText.textContent = originalText;
-            document.querySelector('#strategy-module .btn').disabled = false;
-        }
-
-        // 生成文案
-        async function generateCopywriting() {
-            const dramaName = document.getElementById('copy-drama-name').value;
-            const content = document.getElementById('copy-content').value;
-
-            if (!dramaName || !content) {
-                alert('请填写剧名和素材内容');
-                return;
-            }
-
-            const btnText = document.getElementById('copy-btn-text');
-            const originalText = btnText.textContent;
-            btnText.innerHTML = '<span class="loading"></span>生成中...';
-            btnText.parentElement.disabled = true;
-
-            const outputArea = document.getElementById('copywriting-output');
-            const outputContent = document.getElementById('copywriting-content');
-            outputArea.style.display = 'block';
-            outputContent.textContent = '';
-
-            try {
-                const response = await fetch(API_BASE + '/api/generate-copywriting', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        dramaName, content,
-                        styles: selectedStyles,
-                        platforms: selectedCopyPlatforms
-                    })
-                });
-
-                const reader = response.body.getReader();
-                const decoder = new TextDecoder();
-                let fullText = '';
-
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) break;
-                    const chunk = decoder.decode(value, { stream: true });
-                    fullText += chunk;
-                    outputContent.innerHTML = marked.parse(fullText);
-                    outputContent.scrollTop = outputContent.scrollHeight;
-                }
-
-            } catch (error) {
-                outputContent.textContent = '生成失败，请检查网络连接或联系管理员';
-                console.error('Error:', error);
-            }
-
-            btnText.textContent = originalText;
-            btnText.parentElement.disabled = false;
-        }
-    </script>
+    } catch (e) {
+        outputContent.textContent = '分析生成失败，请检查网络连接。';
+    }
+    btnText.textContent = '🤖 生成分析报告';
+    document.querySelector('#analysis-module .btn').disabled = false;
+}
+</script>
 </body>
 </html>
