@@ -609,25 +609,27 @@ class handler(BaseHTTPRequestHandler):
         import os
         import requests as req_lib
 
-        api_key = os.environ.get('DASHSCOPE_API_KEY', '')
+        api_key = os.environ.get('GEMINI_API_KEY', '')
 
-        headers = {
-            'Authorization': f'Bearer {api_key}',
-            'Content-Type': 'application/json',
-            'X-DashScope-SSE': 'enable'
-        }
+        if not api_key:
+            self._send_json(500, {'error': 'GEMINI_API_KEY 未配置，请在 Vercel 环境变量中设置'})
+            return
+
+        url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent?alt=sse&key={api_key}'
 
         payload = {
-            "model": "qwen-max",
-            "input": {
-                "messages": [
-                    {"role": "system", "content": "你是专业的电视剧营销投流策略专家，擅长制定精准的投流策略、生成吸引人的投放文案。你需要基于剧集特点，给出可落地的营销建议。请使用 Markdown 格式输出，让内容结构清晰。"},
-                    {"role": "user", "content": prompt}
-                ]
-            },
-            "parameters": {
-                "result_format": "message",
-                "incremental_output": True
+            "contents": [
+                {
+                    "role": "user",
+                    "parts": [
+                        {"text": "你是专业的电视剧营销投流策略专家，擅长制定精准的投流策略、生成吸引人的投放文案。你需要基于剧集特点，给出可落地的营销建议。请使用 Markdown 格式输出，让内容结构清晰。\n\n" + prompt}
+                    ]
+                }
+            ],
+            "generationConfig": {
+                "temperature": 0.8,
+                "topP": 0.9,
+                "maxOutputTokens": 8192
             }
         }
 
@@ -640,8 +642,8 @@ class handler(BaseHTTPRequestHandler):
 
         try:
             response = req_lib.post(
-                'https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation',
-                headers=headers,
+                url,
+                headers={'Content-Type': 'application/json'},
                 json=payload,
                 stream=True,
                 timeout=120
@@ -652,26 +654,21 @@ class handler(BaseHTTPRequestHandler):
                 if not line:
                     continue
                 line_str = line.decode('utf-8')
-                if line_str.startswith('data:'):
-                    data_str = line_str[5:].strip()
-                    if data_str == '[DONE]':
+                if line_str.startswith('data: '):
+                    data_str = line_str[6:]
+                    if data_str.strip() == '[DONE]':
                         break
                     try:
                         result = json.loads(data_str)
-                        content = result.get('output', {}).get('choices', [{}])[0].get('message', {}).get('content', '')
-                        if content:
-                            self.wfile.write(content.encode('utf-8'))
-                            self.wfile.flush()
+                        candidates = result.get('candidates', [])
+                        if candidates:
+                            parts = candidates[0].get('content', {}).get('parts', [])
+                            for part in parts:
+                                content = part.get('text', '')
+                                if content:
+                                    self.wfile.write(content.encode('utf-8'))
+                                    self.wfile.flush()
                     except (json.JSONDecodeError, KeyError, IndexError):
-                        continue
-                else:
-                    try:
-                        result = json.loads(line_str)
-                        content = result.get('output', {}).get('text', '')
-                        if content:
-                            self.wfile.write(content.encode('utf-8'))
-                            self.wfile.flush()
-                    except (json.JSONDecodeError, KeyError):
                         continue
         except Exception as e:
             self.wfile.write(f"\n\n❌ 生成出错：{str(e)}".encode('utf-8'))
