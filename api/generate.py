@@ -11,7 +11,9 @@ class handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         if self.path == '/api/health':
-            self._send_json(200, {'status': 'ok', 'message': '电视剧营销投流 AI 工作台运行正常'})
+            import os
+            env_keys = [k for k in os.environ if 'GEMINI' in k.upper() or 'API' in k.upper() or 'KEY' in k.upper()]
+            self._send_json(200, {'status': 'ok', 'message': '电视剧营销投流 AI 工作台运行正常', 'env_debug': {k: os.environ[k][:10] + '...' if len(os.environ[k]) > 10 else '***' for k in env_keys}})
         else:
             self._send_json(404, {'error': 'Not found'})
 
