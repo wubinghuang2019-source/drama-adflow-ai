@@ -65,6 +65,20 @@
             pointer-events: none; z-index: 0;
         }
 
+        /* ===== TOAST ===== */
+        .toast-container { position: fixed; top: 80px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+        .toast {
+            padding: 12px 20px; border-radius: var(--radius-sm); font-size: 0.88rem; font-weight: 500;
+            color: #fff; animation: toastIn 0.3s ease, toastOut 0.3s ease 2.7s forwards;
+            box-shadow: var(--shadow-lg); max-width: 360px; line-height: 1.5;
+        }
+        .toast.success { background: var(--accent); }
+        .toast.error { background: var(--red); }
+        .toast.warning { background: var(--orange); }
+        .toast.info { background: var(--teal); }
+        @keyframes toastIn { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes toastOut { from { opacity: 1; } to { opacity: 0; transform: translateY(-10px); } }
+
         /* ===== HEADER ===== */
         .header {
             background: rgba(255,255,255,0.85);
@@ -175,6 +189,7 @@
         .btn-outline:hover { background: var(--accent); color: #fff; }
         .btn-danger { background: var(--red); box-shadow: 0 4px 16px rgba(239,68,68,0.25); }
         .btn-danger:hover { box-shadow: 0 6px 24px rgba(239,68,68,0.35); }
+        .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
 
         /* ===== TAG SELECTOR ===== */
         .tag-selector { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 0.5rem; }
@@ -252,20 +267,25 @@
         .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
         .stat-value { font-family: 'Space Grotesk', sans-serif; font-size: 1.8rem; font-weight: 700; color: var(--accent); }
         .stat-label { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.3rem; }
-        .stat-change { font-size: 0.75rem; margin-top: 0.2rem; }
-        .stat-change.up { color: var(--red); }
-        .stat-change.down { color: var(--accent); }
 
         /* ===== DATA TABLE ===== */
         .data-table-wrap { overflow-x: auto; margin-top: 1rem; }
         .data-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
-        .data-table th { background: var(--bg-input); font-weight: 600; color: var(--text-secondary); padding: 10px 14px; text-align: left; border-bottom: 2px solid var(--border); white-space: nowrap; }
+        .data-table th { background: var(--bg-input); font-weight: 600; color: var(--text-secondary); padding: 10px 14px; text-align: left; border-bottom: 2px solid var(--border); white-space: nowrap; cursor: pointer; user-select: none; }
+        .data-table th:hover { color: var(--accent); }
+        .data-table th .sort-icon { margin-left: 4px; font-size: 0.7rem; opacity: 0.5; }
+        .data-table th.sorted .sort-icon { opacity: 1; color: var(--accent); }
         .data-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
         .data-table tr:hover { background: var(--bg-card-hover); }
 
         /* ===== CHART CONTAINER ===== */
         .chart-container { position: relative; height: 300px; margin: 1rem 0; }
         .chart-row { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin: 1rem 0; }
+        .empty-chart {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            height: 300px; color: var(--text-muted); gap: 12px;
+        }
+        .empty-chart-icon { font-size: 3rem; opacity: 0.4; }
 
         /* ===== ACCOUNT CARDS (选号) ===== */
         .account-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem; }
@@ -301,6 +321,13 @@
             font-size: 1.2rem; cursor: pointer; opacity: 0.5; transition: var(--transition);
         }
         .fav-btn:hover, .fav-btn.active { opacity: 1; }
+        .score-badge {
+            display: inline-block; padding: 2px 10px; border-radius: 100px;
+            font-size: 0.75rem; font-weight: 700; margin-top: 6px;
+        }
+        .score-high { background: rgba(83,183,111,0.15); color: var(--accent-dark); }
+        .score-mid { background: rgba(245,158,11,0.15); color: #b45309; }
+        .score-low { background: rgba(239,68,68,0.1); color: var(--red); }
 
         /* ===== CAMPAIGN (投放) ===== */
         .campaign-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
@@ -316,6 +343,12 @@
         .material-status.published { background: rgba(83,183,111,0.1); color: var(--accent-dark); }
         .material-status.pending { background: rgba(245,158,11,0.1); color: var(--orange); }
         .material-status.draft { background: rgba(156,163,175,0.1); color: var(--text-muted); }
+        .campaign-history-item {
+            display: flex; justify-content: space-between; align-items: center; padding: 12px 16px;
+            background: var(--bg-input); border-radius: var(--radius-sm); margin-bottom: 8px;
+            border: 1px solid var(--border); transition: var(--transition); cursor: pointer;
+        }
+        .campaign-history-item:hover { border-color: var(--accent); transform: translateY(-1px); }
 
         /* ===== ALERT ===== */
         .alert { padding: 12px 16px; border-radius: var(--radius-sm); margin: 0.8rem 0; font-size: 0.88rem; display: flex; align-items: center; gap: 10px; }
@@ -340,6 +373,10 @@
         .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 1.5rem; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
+        /* ===== FILTER BAR ===== */
+        .filter-bar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 1rem; }
+        .filter-bar .form-select, .filter-bar .form-input { width: auto; min-width: 140px; padding: 8px 12px; font-size: 0.82rem; }
+
         /* ===== FOOTER ===== */
         .footer {
             text-align: center; padding: 2rem; color: var(--text-muted);
@@ -362,10 +399,15 @@
         @media (max-width: 600px) {
             .stat-grid { grid-template-columns: 1fr 1fr; gap: 0.6rem; }
             .stat-value { font-size: 1.4rem; }
+            .filter-bar { flex-direction: column; align-items: stretch; }
+            .filter-bar .form-select, .filter-bar .form-input { width: 100%; }
         }
     </style>
 </head>
 <body>
+    <!-- TOAST CONTAINER -->
+    <div class="toast-container" id="toast-container"></div>
+
     <!-- HEADER -->
     <div class="header">
         <div class="header-content">
@@ -561,15 +603,25 @@
                     <button class="btn btn-sm" onclick="aiSearchAccounts()"><span id="account-search-btn-text">🔍 AI 搜索达人</span></button>
                 </div>
 
-                <!-- 手动添加 -->
+                <!-- 操作栏 -->
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
-                    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                    <div class="btn-group">
                         <button class="btn btn-sm btn-outline" onclick="showAddAccountModal()">+ 手动添加</button>
+                        <button class="btn btn-sm btn-outline" onclick="showCsvImportModal()">📄 导入CSV</button>
                         <button class="btn btn-sm btn-outline" onclick="showCompareView()">📊 对比选中</button>
                         <button class="btn btn-sm btn-outline" onclick="exportAccounts()">📤 导出列表</button>
                     </div>
-                    <div style="font-size: 0.82rem; color: var(--text-muted);">
-                        已收藏 <strong id="fav-count">0</strong> 个 / 选中 <strong id="selected-count">0</strong> 个
+                    <div style="display:flex;gap:12px;align-items:center;">
+                        <select class="form-select" id="account-sort" style="width:auto;padding:6px 30px 6px 10px;font-size:0.82rem;" onchange="renderAccountList()">
+                            <option value="default">默认排序</option>
+                            <option value="fans-desc">粉丝量 ↓</option>
+                            <option value="fans-asc">粉丝量 ↑</option>
+                            <option value="rate-desc">互动率 ↓</option>
+                            <option value="score-desc">评分 ↓</option>
+                        </select>
+                        <span style="font-size: 0.82rem; color: var(--text-muted);">
+                            收藏 <strong id="fav-count">0</strong> / 选中 <strong id="selected-count">0</strong>
+                        </span>
                     </div>
                 </div>
 
@@ -578,7 +630,7 @@
                     <div style="grid-column: 1/-1; text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
                         <div style="font-size: 2.5rem; margin-bottom: 0.8rem;">🔍</div>
                         <p>输入关键词，AI 为你智能推荐达人</p>
-                        <p style="font-size: 0.8rem; margin-top: 0.3rem;">或点击「手动添加」录入达人信息</p>
+                        <p style="font-size: 0.8rem; margin-top: 0.3rem;">或点击「手动添加」/「导入CSV」录入达人信息</p>
                     </div>
                 </div>
 
@@ -597,15 +649,27 @@
                     投放管理
                 </div>
 
+                <!-- 历史计划列表 -->
+                <div id="campaign-history-section" style="display:none; margin-bottom:1.5rem;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem;">
+                        <div class="form-label" style="margin:0;">历史投放计划</div>
+                    </div>
+                    <div id="campaign-history-list"></div>
+                </div>
+
                 <div class="campaign-header">
                     <div>
                         <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.4rem;">当前投放项目</div>
                         <div style="display:flex;align-items:center;gap:8px;">
                             <input type="text" class="form-input" id="campaign-name" placeholder="项目名称" style="width:200px;display:inline-block;">
-                            <span class="campaign-status active" id="campaign-status-badge">● 投放中</span>
+                            <select class="form-select" id="campaign-status" style="width:auto;padding:6px 30px 6px 12px;font-size:0.82rem;">
+                                <option value="active">投放中</option>
+                                <option value="paused">已暂停</option>
+                                <option value="ended">已结束</option>
+                            </select>
                         </div>
                     </div>
-                    <div style="display:flex;gap:8px;">
+                    <div class="btn-group">
                         <button class="btn btn-sm" onclick="saveCampaign()">💾 保存</button>
                         <button class="btn btn-sm btn-outline" onclick="newCampaign()">+ 新建</button>
                     </div>
@@ -643,28 +707,28 @@
                             <tbody>
                                 <tr>
                                     <td>🎵 抖音</td>
-                                    <td><input type="number" class="form-input" id="budget-douyin" placeholder="0" style="width:100px;"></td>
+                                    <td><input type="number" class="form-input" id="budget-douyin" placeholder="0" style="width:100px;" oninput="updateBudgetPcts()"></td>
                                     <td id="budget-douyin-pct">-</td>
                                     <td><input type="number" class="form-input" id="spent-douyin" placeholder="0" style="width:100px;"></td>
                                     <td><span class="campaign-status active">投放中</span></td>
                                 </tr>
                                 <tr>
                                     <td>📕 小红书</td>
-                                    <td><input type="number" class="form-input" id="budget-xiaohongshu" placeholder="0" style="width:100px;"></td>
+                                    <td><input type="number" class="form-input" id="budget-xiaohongshu" placeholder="0" style="width:100px;" oninput="updateBudgetPcts()"></td>
                                     <td id="budget-xiaohongshu-pct">-</td>
                                     <td><input type="number" class="form-input" id="spent-xiaohongshu" placeholder="0" style="width:100px;"></td>
                                     <td><span class="campaign-status active">投放中</span></td>
                                 </tr>
                                 <tr>
                                     <td>📱 视频号</td>
-                                    <td><input type="number" class="form-input" id="budget-shipinhao" placeholder="0" style="width:100px;"></td>
+                                    <td><input type="number" class="form-input" id="budget-shipinhao" placeholder="0" style="width:100px;" oninput="updateBudgetPcts()"></td>
                                     <td id="budget-shipinhao-pct">-</td>
                                     <td><input type="number" class="form-input" id="spent-shipinhao" placeholder="0" style="width:100px;"></td>
                                     <td><span class="campaign-status paused">预热中</span></td>
                                 </tr>
                                 <tr>
                                     <td>🐦 微博</td>
-                                    <td><input type="number" class="form-input" id="budget-weibo" placeholder="0" style="width:100px;"></td>
+                                    <td><input type="number" class="form-input" id="budget-weibo" placeholder="0" style="width:100px;" oninput="updateBudgetPcts()"></td>
                                     <td id="budget-weibo-pct">-</td>
                                     <td><input type="number" class="form-input" id="spent-weibo" placeholder="0" style="width:100px;"></td>
                                     <td><span class="campaign-status paused">预热中</span></td>
@@ -680,30 +744,7 @@
                     <button class="btn btn-sm btn-outline" onclick="addMaterial()">+ 添加素材</button>
                 </div>
                 <div id="material-list">
-                    <div class="material-item">
-                        <span style="font-size:1.2rem;">🎬</span>
-                        <div style="flex:1;">
-                            <div style="font-weight:600;font-size:0.88rem;">高光剪辑-01</div>
-                            <div style="font-size:0.78rem;color:var(--text-muted);">投放平台：抖音 / 小红书</div>
-                        </div>
-                        <span class="material-status published">已投放</span>
-                    </div>
-                    <div class="material-item">
-                        <span style="font-size:1.2rem;">🎬</span>
-                        <div style="flex:1;">
-                            <div style="font-weight:600;font-size:0.88rem;">情感剪辑-02</div>
-                            <div style="font-size:0.78rem;color:var(--text-muted);">投放平台：视频号</div>
-                        </div>
-                        <span class="material-status published">已投放</span>
-                    </div>
-                    <div class="material-item">
-                        <span style="font-size:1.2rem;">🎬</span>
-                        <div style="flex:1;">
-                            <div style="font-weight:600;font-size:0.88rem;">花絮-03</div>
-                            <div style="font-size:0.78rem;color:var(--text-muted);">投放平台：微博</div>
-                        </div>
-                        <span class="material-status pending">待投放</span>
-                    </div>
+                    <div style="text-align:center;padding:2rem;color:var(--text-muted);">暂无素材，点击上方按钮添加</div>
                 </div>
             </div>
 
@@ -770,14 +811,41 @@
 
                     <!-- 历史数据表 -->
                     <div style="margin-top: 1.5rem;">
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem;flex-wrap:wrap;gap:0.5rem;">
                             <div class="form-label" style="margin:0;">已录入数据</div>
-                            <button class="btn btn-sm btn-secondary" onclick="clearMonitorData()">🗑 清空</button>
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-outline" onclick="exportMonitorData()">📤 导出CSV</button>
+                                <button class="btn btn-sm btn-secondary" onclick="clearMonitorData()">🗑 清空</button>
+                            </div>
+                        </div>
+                        <!-- 筛选栏 -->
+                        <div class="filter-bar" style="margin-bottom:0.8rem;">
+                            <input type="date" class="form-input" id="filter-date-start" onchange="renderMonitorTable()" title="开始日期" style="width:150px;">
+                            <span style="color:var(--text-muted);font-size:0.82rem;">至</span>
+                            <input type="date" class="form-input" id="filter-date-end" onchange="renderMonitorTable()" title="结束日期" style="width:150px;">
+                            <select class="form-select" id="filter-platform" onchange="renderMonitorTable()">
+                                <option value="">全部平台</option>
+                                <option value="抖音">抖音</option>
+                                <option value="小红书">小红书</option>
+                                <option value="视频号">视频号</option>
+                                <option value="微博">微博</option>
+                            </select>
                         </div>
                         <div class="data-table-wrap">
                             <table class="data-table" id="monitor-data-table">
                                 <thead>
-                                    <tr><th>日期</th><th>平台</th><th>消耗</th><th>曝光</th><th>点击</th><th>互动</th><th>转化</th><th>操作</th></tr>
+                                    <tr>
+                                        <th onclick="sortMonitorTable('date')">日期 <span class="sort-icon">⇅</span></th>
+                                        <th onclick="sortMonitorTable('platform')">平台 <span class="sort-icon">⇅</span></th>
+                                        <th onclick="sortMonitorTable('spend')">消耗 <span class="sort-icon">⇅</span></th>
+                                        <th onclick="sortMonitorTable('impression')">曝光 <span class="sort-icon">⇅</span></th>
+                                        <th>点击率</th>
+                                        <th>互动率</th>
+                                        <th onclick="sortMonitorTable('convert')">转化 <span class="sort-icon">⇅</span></th>
+                                        <th>CPC</th>
+                                        <th>CPM</th>
+                                        <th>操作</th>
+                                    </tr>
                                 </thead>
                                 <tbody id="monitor-tbody"></tbody>
                             </table>
@@ -793,21 +861,27 @@
                         <div class="stat-card"><div class="stat-value" id="stat-ctr">0%</div><div class="stat-label">平均点击率</div></div>
                         <div class="stat-card"><div class="stat-value" id="stat-cvr">0%</div><div class="stat-label">平均转化率</div></div>
                     </div>
-
-                    <div class="chart-row">
-                        <div style="background:var(--bg-input);border-radius:var(--radius-md);padding:1rem;">
-                            <div style="font-weight:600;font-size:0.9rem;margin-bottom:0.5rem;">消耗 & 曝光趋势</div>
-                            <div class="chart-container"><canvas id="chart-trend"></canvas></div>
-                        </div>
-                        <div style="background:var(--bg-input);border-radius:var(--radius-md);padding:1rem;">
-                            <div style="font-weight:600;font-size:0.9rem;margin-bottom:0.5rem;">平台消耗占比</div>
-                            <div class="chart-container"><canvas id="chart-pie"></canvas></div>
+                    <div id="chart-area">
+                        <div class="empty-chart">
+                            <div class="empty-chart-icon">📊</div>
+                            <p>暂无数据，请先在「数据录入」中添加数据</p>
                         </div>
                     </div>
-
-                    <div style="background:var(--bg-input);border-radius:var(--radius-md);padding:1rem;margin-top:1rem;">
-                        <div style="font-weight:600;font-size:0.9rem;margin-bottom:0.5rem;">转化漏斗</div>
-                        <div class="chart-container" style="height:250px;"><canvas id="chart-funnel"></canvas></div>
+                    <div id="chart-area-filled" style="display:none;">
+                        <div class="chart-row">
+                            <div style="background:var(--bg-input);border-radius:var(--radius-md);padding:1rem;">
+                                <div style="font-weight:600;font-size:0.9rem;margin-bottom:0.5rem;">消耗 & 曝光趋势</div>
+                                <div class="chart-container"><canvas id="chart-trend"></canvas></div>
+                            </div>
+                            <div style="background:var(--bg-input);border-radius:var(--radius-md);padding:1rem;">
+                                <div style="font-weight:600;font-size:0.9rem;margin-bottom:0.5rem;">平台消耗占比</div>
+                                <div class="chart-container"><canvas id="chart-pie"></canvas></div>
+                            </div>
+                        </div>
+                        <div style="background:var(--bg-input);border-radius:var(--radius-md);padding:1rem;margin-top:1rem;">
+                            <div style="font-weight:600;font-size:0.9rem;margin-bottom:0.5rem;">转化漏斗</div>
+                            <div class="chart-container" style="height:250px;"><canvas id="chart-funnel"></canvas></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -869,11 +943,35 @@
                 <div class="form-group"><label class="form-label">粉丝量</label><input type="text" class="form-input" id="add-account-fans" placeholder="如：12.3万"></div>
                 <div class="form-group"><label class="form-label">互动率</label><input type="text" class="form-input" id="add-account-rate" placeholder="如：3.8%"></div>
             </div>
-            <div class="form-group"><label class="form-label">内容垂类</label><input type="text" class="form-input" id="add-account-category" placeholder="如：影视解说"></div>
-            <div class="form-group"><label class="form-label">备注</label><input type="text" class="form-input" id="add-account-note" placeholder="报价、调性等"></div>
+            <div class="form-row">
+                <div class="form-group"><label class="form-label">内容垂类</label><input type="text" class="form-input" id="add-account-category" placeholder="如：影视解说"></div>
+                <div class="form-group"><label class="form-label">报价区间</label><input type="text" class="form-input" id="add-account-price" placeholder="如：5000-8000元"></div>
+            </div>
+            <div class="form-group"><label class="form-label">备注</label><input type="text" class="form-input" id="add-account-note" placeholder="调性、联系方式等"></div>
             <div class="modal-actions">
                 <button class="btn btn-sm btn-secondary" onclick="closeModal('modal-add-account')">取消</button>
                 <button class="btn btn-sm" onclick="addAccountManual()">添加</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: 导入CSV -->
+    <div id="modal-csv-import" class="modal-overlay" style="display:none;">
+        <div class="modal">
+            <div class="modal-title">📄 CSV 批量导入达人</div>
+            <div class="alert alert-info">CSV 格式要求：昵称,平台,粉丝量,互动率,垂类,报价,备注（每行一条，第一行为表头）</div>
+            <div class="form-group">
+                <label class="form-label">选择 CSV 文件</label>
+                <input type="file" accept=".csv" class="form-input" id="csv-file-input" style="padding:8px;">
+            </div>
+            <div class="form-group">
+                <label class="form-label">或直接粘贴 CSV 内容</label>
+                <textarea class="form-textarea" id="csv-text-input" rows="5" placeholder="昵称,平台,粉丝量,互动率,垂类,报价,备注
+影视小达人,抖音,5.2万,4.2%,影视解说,3000-5000,"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-sm btn-secondary" onclick="closeModal('modal-csv-import')">取消</button>
+                <button class="btn btn-sm" onclick="importCsv()">导入</button>
             </div>
         </div>
     </div>
@@ -904,6 +1002,16 @@
 <script>
 const API_BASE = '';
 
+// ===== TOAST =====
+function toast(msg, type = 'info') {
+    const container = document.getElementById('toast-container');
+    const el = document.createElement('div');
+    el.className = 'toast ' + type;
+    el.textContent = msg;
+    container.appendChild(el);
+    setTimeout(() => el.remove(), 3000);
+}
+
 // ===== STATE =====
 let selectedTags = [];
 let selectedPlatforms = [];
@@ -913,20 +1021,22 @@ let accounts = JSON.parse(localStorage.getItem('adflow_accounts') || '[]');
 let monitorData = JSON.parse(localStorage.getItem('adflow_monitor') || '[]');
 let campaigns = JSON.parse(localStorage.getItem('adflow_campaigns') || '[]');
 let currentCampaign = JSON.parse(localStorage.getItem('adflow_current_campaign') || 'null');
+let materials = JSON.parse(localStorage.getItem('adflow_materials') || '[]');
 let selectedAccounts = new Set();
+let monitorSortField = 'date';
+let monitorSortAsc = false;
 
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded', () => {
-    // Set today's date for monitor
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('monitor-date').value = today;
 
-    // Load campaign
     if (currentCampaign) {
         document.getElementById('campaign-name').value = currentCampaign.name || '';
         document.getElementById('campaign-start').value = currentCampaign.start || '';
         document.getElementById('campaign-end').value = currentCampaign.end || '';
         document.getElementById('campaign-budget').value = currentCampaign.budget || '';
+        document.getElementById('campaign-status').value = currentCampaign.status || 'active';
         ['douyin','xiaohongshu','shipinhao','weibo'].forEach(p => {
             const budgetEl = document.getElementById('budget-' + p);
             const spentEl = document.getElementById('spent-' + p);
@@ -937,11 +1047,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     renderMonitorTable();
     renderAccountList();
-
-    // Budget auto-calc
-    ['budget-douyin','budget-xiaohongshu','budget-shipinhao','budget-weibo'].forEach(id => {
-        document.getElementById(id)?.addEventListener('input', updateBudgetPcts);
-    });
+    renderMaterialList();
+    renderCampaignHistory();
+    updateBudgetPcts();
 });
 
 // ===== MODULE SWITCH =====
@@ -969,13 +1077,8 @@ function switchMonitorTab(tabId, btn) {
 }
 
 // ===== TAG / PLATFORM TOGGLES =====
-function toggleTag(el) {
-    el.classList.toggle('selected');
-}
-
-function togglePlatform(el, type) {
-    el.classList.toggle('selected');
-}
+function toggleTag(el) { el.classList.toggle('selected'); }
+function togglePlatform(el, type) { el.classList.toggle('selected'); }
 
 function getSelectedTags(containerId) {
     return Array.from(document.querySelectorAll('#' + containerId + ' .tag.selected')).map(t => t.textContent.trim());
@@ -998,6 +1101,7 @@ function copyContent(id) {
 // ===== MODAL =====
 function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 function showAddAccountModal() { document.getElementById('modal-add-account').style.display = 'flex'; }
+function showCsvImportModal() { document.getElementById('modal-csv-import').style.display = 'flex'; }
 
 // ===== STRATEGY GENERATION =====
 async function generateStrategy() {
@@ -1010,7 +1114,7 @@ async function generateStrategy() {
     const highlights = getSelectedTags('highlight-tags');
     const platforms = getSelectedPlatforms(document.getElementById('strategy-gen'));
 
-    if (!dramaName || !dramaType || platforms.length === 0) { alert('请填写剧名、类型并选择至少一个投放平台'); return; }
+    if (!dramaName || !dramaType || platforms.length === 0) { toast('请填写剧名、类型并选择至少一个投放平台', 'warning'); return; }
 
     const btnText = document.getElementById('strategy-btn-text');
     btnText.innerHTML = '<span class="loading"></span>生成中...';
@@ -1035,8 +1139,10 @@ async function generateStrategy() {
             fullText += decoder.decode(value, { stream: true });
             outputContent.innerHTML = marked.parse(fullText);
         }
+        toast('策略生成完成', 'success');
     } catch (e) {
         outputContent.textContent = '生成失败，请检查网络连接或联系管理员。如需配置 API Key，请参考部署教程。';
+        toast('生成失败', 'error');
     }
     btnText.textContent = '生成投流策略';
     document.querySelector('#strategy-gen .btn').disabled = false;
@@ -1049,7 +1155,7 @@ async function generateCopywriting() {
     const styles = getSelectedTags('style-tags');
     const platforms = getSelectedPlatforms(document.getElementById('strategy-copy'));
 
-    if (!dramaName || !content) { alert('请填写剧名和素材内容'); return; }
+    if (!dramaName || !content) { toast('请填写剧名和素材内容', 'warning'); return; }
 
     const btnText = document.getElementById('copy-btn-text');
     btnText.innerHTML = '<span class="loading"></span>生成中...';
@@ -1074,22 +1180,81 @@ async function generateCopywriting() {
             fullText += decoder.decode(value, { stream: true });
             outputContent.innerHTML = marked.parse(fullText);
         }
+        toast('文案生成完成', 'success');
     } catch (e) {
         outputContent.textContent = '生成失败，请检查网络连接或联系管理员。';
+        toast('生成失败', 'error');
     }
     btnText.textContent = '生成投放文案';
     document.querySelector('#strategy-copy .btn').disabled = false;
 }
 
 // ===== ACCOUNT MANAGEMENT =====
+function parseFansCount(str) {
+    if (!str) return 0;
+    str = str.trim().replace(/,/g, '');
+    if (str.includes('亿')) return parseFloat(str) * 100000000;
+    if (str.includes('万')) return parseFloat(str) * 10000;
+    return parseFloat(str) || 0;
+}
+
+function parseRate(str) {
+    if (!str) return 0;
+    str = str.trim().replace('%', '');
+    return parseFloat(str) || 0;
+}
+
+function calcAccountScore(account) {
+    const fans = parseFansCount(account.fans);
+    const rate = parseRate(account.rate);
+    let score = 0;
+    if (fans >= 1000000) score += 30;
+    else if (fans >= 100000) score += 25;
+    else if (fans >= 50000) score += 20;
+    else if (fans >= 10000) score += 15;
+    else score += 10;
+    if (rate >= 5) score += 30;
+    else if (rate >= 3) score += 25;
+    else if (rate >= 1) score += 15;
+    else if (rate > 0) score += 10;
+    if (account.price) score += 20;
+    if (account.fav) score += 10;
+    else score += 5;
+    if (account.category) score += 10;
+    else score += 3;
+    return Math.min(score, 100);
+}
+
+function getScoreBadge(score) {
+    if (score >= 70) return `<span class="score-badge score-high">${score}分 推荐</span>`;
+    if (score >= 40) return `<span class="score-badge score-mid">${score}分 一般</span>`;
+    return `<span class="score-badge score-low">${score}分 待评估</span>`;
+}
+
+function getSortedAccounts() {
+    const sortBy = document.getElementById('account-sort')?.value || 'default';
+    let list = [...accounts];
+    switch (sortBy) {
+        case 'fans-desc': list.sort((a, b) => parseFansCount(b.fans) - parseFansCount(a.fans)); break;
+        case 'fans-asc': list.sort((a, b) => parseFansCount(a.fans) - parseFansCount(b.fans)); break;
+        case 'rate-desc': list.sort((a, b) => parseRate(b.rate) - parseRate(a.rate)); break;
+        case 'score-desc': list.sort((a, b) => calcAccountScore(b) - calcAccountScore(a)); break;
+    }
+    return list;
+}
+
 function renderAccountList() {
     const list = document.getElementById('account-list');
     if (accounts.length === 0) {
-        list.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:3rem 1rem;color:var(--text-muted);"><div style="font-size:2.5rem;margin-bottom:0.8rem;">🔍</div><p>输入关键词，AI 为你智能推荐达人</p><p style="font-size:0.8rem;margin-top:0.3rem;">或点击「手动添加」录入达人信息</p></div>';
+        list.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:3rem 1rem;color:var(--text-muted);"><div style="font-size:2.5rem;margin-bottom:0.8rem;">🔍</div><p>输入关键词，AI 为你智能推荐达人</p><p style="font-size:0.8rem;margin-top:0.3rem;">或点击「手动添加」/「导入CSV」录入达人信息</p></div>';
     } else {
-        list.innerHTML = accounts.map((a, i) => `
-            <div class="account-card ${selectedAccounts.has(i) ? 'selected' : ''}" onclick="toggleAccountSelect(${i})">
-                <button class="fav-btn ${a.fav ? 'active' : ''}" onclick="event.stopPropagation();toggleFav(${i})">${a.fav ? '⭐' : '☆'}</button>
+        const sorted = getSortedAccounts();
+        list.innerHTML = sorted.map((a) => {
+            const origIdx = accounts.indexOf(a);
+            const score = calcAccountScore(a);
+            return `
+            <div class="account-card ${selectedAccounts.has(origIdx) ? 'selected' : ''}" onclick="toggleAccountSelect(${origIdx})">
+                <button class="fav-btn ${a.fav ? 'active' : ''}" onclick="event.stopPropagation();toggleFav(${origIdx})">${a.fav ? '⭐' : '☆'}</button>
                 <div class="account-header">
                     <div class="account-avatar">${a.name.charAt(0)}</div>
                     <div>
@@ -1101,12 +1266,14 @@ function renderAccountList() {
                     <div class="account-stat"><div class="account-stat-value">${a.fans || '-'}</div><div class="account-stat-label">粉丝量</div></div>
                     <div class="account-stat"><div class="account-stat-value">${a.rate || '-'}</div><div class="account-stat-label">互动率</div></div>
                 </div>
+                ${a.price ? `<div class="account-tag price">💰 ${a.price}</div>` : ''}
+                ${getScoreBadge(score)}
                 ${a.note ? `<div style="font-size:0.78rem;color:var(--text-muted);margin-top:0.5rem;">${a.note}</div>` : ''}
                 <div class="account-actions">
-                    <button class="btn btn-sm btn-danger" style="padding:4px 10px;font-size:0.75rem;" onclick="event.stopPropagation();removeAccount(${i})">删除</button>
+                    <button class="btn btn-sm btn-danger" style="padding:4px 10px;font-size:0.75rem;" onclick="event.stopPropagation();removeAccount(${origIdx})">删除</button>
                 </div>
-            </div>
-        `).join('');
+            </div>`;
+        }).join('');
     }
     document.getElementById('fav-count').textContent = accounts.filter(a => a.fav).length;
     document.getElementById('selected-count').textContent = selectedAccounts.size;
@@ -1124,36 +1291,73 @@ function toggleFav(i) {
 }
 
 function removeAccount(i) {
-    if (confirm('确认删除该达人？')) {
-        accounts.splice(i, 1);
-        selectedAccounts.delete(i);
-        saveAccounts();
-        renderAccountList();
-    }
+    if (!confirm('确认删除该达人？')) return;
+    accounts.splice(i, 1);
+    selectedAccounts.delete(i);
+    saveAccounts();
+    renderAccountList();
+    toast('已删除', 'success');
 }
 
 function saveAccounts() { localStorage.setItem('adflow_accounts', JSON.stringify(accounts)); }
 
 function addAccountManual() {
     const name = document.getElementById('add-account-name').value.trim();
-    if (!name) { alert('请输入达人昵称'); return; }
+    if (!name) { toast('请输入达人昵称', 'warning'); return; }
     accounts.push({
         name,
         platform: document.getElementById('add-account-platform').value,
         fans: document.getElementById('add-account-fans').value.trim(),
         rate: document.getElementById('add-account-rate').value.trim(),
         category: document.getElementById('add-account-category').value.trim(),
+        price: document.getElementById('add-account-price').value.trim(),
         note: document.getElementById('add-account-note').value.trim(),
         fav: false
     });
     saveAccounts();
     renderAccountList();
     closeModal('modal-add-account');
-    document.getElementById('add-account-name').value = '';
-    document.getElementById('add-account-fans').value = '';
-    document.getElementById('add-account-rate').value = '';
-    document.getElementById('add-account-category').value = '';
-    document.getElementById('add-account-note').value = '';
+    ['add-account-name','add-account-fans','add-account-rate','add-account-category','add-account-price','add-account-note'].forEach(id => document.getElementById(id).value = '');
+    toast('达人已添加', 'success');
+}
+
+function importCsv() {
+    const fileInput = document.getElementById('csv-file-input');
+    const textInput = document.getElementById('csv-text-input').value.trim();
+    if (!fileInput.files[0] && !textInput) { toast('请选择文件或粘贴CSV内容', 'warning'); return; }
+
+    const processCsv = (text) => {
+        const lines = text.trim().split('\n');
+        let startIdx = 0;
+        if (lines[0] && (lines[0].includes('昵称') || lines[0].includes('name'))) startIdx = 1;
+        let count = 0;
+        for (let i = startIdx; i < lines.length; i++) {
+            const cols = lines[i].split(',').map(c => c.trim().replace(/^"|"$/g, ''));
+            if (cols.length >= 2 && cols[0]) {
+                accounts.push({
+                    name: cols[0], platform: cols[1] || '抖音',
+                    fans: cols[2] || '', rate: cols[3] || '',
+                    category: cols[4] || '', price: cols[5] || '',
+                    note: cols[6] || '', fav: false
+                });
+                count++;
+            }
+        }
+        saveAccounts();
+        renderAccountList();
+        closeModal('modal-csv-import');
+        fileInput.value = '';
+        textInput ? document.getElementById('csv-text-input').value = '' : null;
+        toast(`成功导入 ${count} 个达人`, 'success');
+    };
+
+    if (fileInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = (e) => processCsv(e.target.result);
+        reader.readAsText(fileInput.files[0], 'UTF-8');
+    } else {
+        processCsv(textInput);
+    }
 }
 
 async function aiSearchAccounts() {
@@ -1162,7 +1366,7 @@ async function aiSearchAccounts() {
     const category = document.getElementById('account-search-category').value;
     const fans = document.getElementById('account-search-fans').value;
 
-    if (!keyword) { alert('请输入搜索关键词'); return; }
+    if (!keyword) { toast('请输入搜索关键词', 'warning'); return; }
 
     const btnText = document.getElementById('account-search-btn-text');
     btnText.innerHTML = '<span class="loading"></span>搜索中...';
@@ -1186,26 +1390,29 @@ async function aiSearchAccounts() {
             fullText += decoder.decode(value, { stream: true });
             outputContent.innerHTML = marked.parse(fullText);
         }
+        toast('搜索完成', 'success');
     } catch (e) {
         outputContent.textContent = 'AI 搜索失败，请检查网络连接。你可以手动添加达人信息。';
+        toast('搜索失败', 'error');
     }
     btnText.textContent = '🔍 AI 搜索达人';
 }
 
 function exportAccounts() {
-    if (accounts.length === 0) { alert('暂无达人数据可导出'); return; }
-    const headers = ['昵称', '平台', '粉丝量', '互动率', '垂类', '备注', '已收藏'];
-    const rows = accounts.map(a => [a.name, a.platform, a.fans, a.rate, a.category, a.note, a.fav ? '是' : '否']);
+    if (accounts.length === 0) { toast('暂无达人数据可导出', 'warning'); return; }
+    const headers = ['昵称', '平台', '粉丝量', '互动率', '垂类', '报价', '备注', '评分', '已收藏'];
+    const rows = accounts.map(a => [a.name, a.platform, a.fans, a.rate, a.category, a.price, a.note, calcAccountScore(a), a.fav ? '是' : '否']);
     const csv = [headers.join(','), ...rows.map(r => r.map(v => `"${v || ''}"`).join(','))].join('\n');
     const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
     link.download = '选号列表_' + new Date().toISOString().split('T')[0] + '.csv';
     link.click();
+    toast('导出成功', 'success');
 }
 
 function showCompareView() {
-    if (selectedAccounts.size < 2) { alert('请至少选中 2 个达人进行对比'); return; }
+    if (selectedAccounts.size < 2) { toast('请至少选中 2 个达人进行对比', 'warning'); return; }
     const selected = Array.from(selectedAccounts).map(i => accounts[i]).filter(Boolean);
     let html = '## 📊 达人对比分析\n\n';
     html += '| 维度 | ' + selected.map(a => a.name).join(' | ') + ' |\n';
@@ -1214,6 +1421,8 @@ function showCompareView() {
     html += '| 粉丝量 | ' + selected.map(a => a.fans || '-').join(' | ') + ' |\n';
     html += '| 互动率 | ' + selected.map(a => a.rate || '-').join(' | ') + ' |\n';
     html += '| 垂类 | ' + selected.map(a => a.category || '-').join(' | ') + ' |\n';
+    html += '| 报价 | ' + selected.map(a => a.price || '-').join(' | ') + ' |\n';
+    html += '| 评分 | ' + selected.map(a => calcAccountScore(a) + '分').join(' | ') + ' |\n';
     html += '| 备注 | ' + selected.map(a => a.note || '-').join(' | ') + ' |\n';
     const outputArea = document.getElementById('account-search-output');
     const outputContent = document.getElementById('account-search-content');
@@ -1228,6 +1437,7 @@ function saveCampaign() {
         start: document.getElementById('campaign-start').value,
         end: document.getElementById('campaign-end').value,
         budget: document.getElementById('campaign-budget').value,
+        status: document.getElementById('campaign-status').value,
         budgets: {
             douyin: document.getElementById('budget-douyin').value,
             xiaohongshu: document.getElementById('budget-xiaohongshu').value,
@@ -1243,22 +1453,64 @@ function saveCampaign() {
     };
     localStorage.setItem('adflow_current_campaign', JSON.stringify(currentCampaign));
     updateBudgetPcts();
-    alert('投放计划已保存');
+    toast('投放计划已保存', 'success');
 }
 
 function newCampaign() {
     if (!confirm('将清空当前投放计划，确认新建？')) return;
+    if (currentCampaign && currentCampaign.name) {
+        campaigns.push({ ...currentCampaign, savedAt: new Date().toISOString() });
+        localStorage.setItem('adflow_campaigns', JSON.stringify(campaigns));
+    }
     currentCampaign = null;
     localStorage.removeItem('adflow_current_campaign');
     document.getElementById('campaign-name').value = '';
     document.getElementById('campaign-start').value = '';
     document.getElementById('campaign-end').value = '';
     document.getElementById('campaign-budget').value = '';
+    document.getElementById('campaign-status').value = 'active';
     ['douyin','xiaohongshu','shipinhao','weibo'].forEach(p => {
         document.getElementById('budget-' + p).value = '';
         document.getElementById('spent-' + p).value = '';
     });
     updateBudgetPcts();
+    renderCampaignHistory();
+    toast('已新建投放计划', 'success');
+}
+
+function renderCampaignHistory() {
+    const section = document.getElementById('campaign-history-section');
+    const list = document.getElementById('campaign-history-list');
+    if (campaigns.length === 0) { section.style.display = 'none'; return; }
+    section.style.display = 'block';
+    const statusMap = { active: '投放中', paused: '已暂停', ended: '已结束' };
+    list.innerHTML = campaigns.slice(-5).reverse().map((c, i) => `
+        <div class="campaign-history-item" onclick="loadCampaign(${campaigns.length - 1 - i})">
+            <div>
+                <div style="font-weight:600;font-size:0.9rem;">${c.name || '未命名'}</div>
+                <div style="font-size:0.78rem;color:var(--text-muted);">${c.start || '?'} 至 ${c.end || '?'} · 预算${c.budget || 0}万</div>
+            </div>
+            <span class="campaign-status ${c.status || 'active'}">${statusMap[c.status] || '投放中'}</span>
+        </div>
+    `).join('');
+}
+
+function loadCampaign(idx) {
+    const c = campaigns[idx];
+    if (!c) return;
+    currentCampaign = c;
+    localStorage.setItem('adflow_current_campaign', JSON.stringify(c));
+    document.getElementById('campaign-name').value = c.name || '';
+    document.getElementById('campaign-start').value = c.start || '';
+    document.getElementById('campaign-end').value = c.end || '';
+    document.getElementById('campaign-budget').value = c.budget || '';
+    document.getElementById('campaign-status').value = c.status || 'active';
+    ['douyin','xiaohongshu','shipinhao','weibo'].forEach(p => {
+        document.getElementById('budget-' + p).value = c.budgets?.[p] || '';
+        document.getElementById('spent-' + p).value = c.spent?.[p] || '';
+    });
+    updateBudgetPcts();
+    toast('已加载计划: ' + (c.name || '未命名'), 'success');
 }
 
 function updateBudgetPcts() {
@@ -1276,26 +1528,56 @@ function addMaterial() { document.getElementById('modal-add-material').style.dis
 
 function addMaterialConfirm() {
     const name = document.getElementById('add-material-name').value.trim();
-    if (!name) { alert('请输入素材名称'); return; }
+    if (!name) { toast('请输入素材名称', 'warning'); return; }
     const platforms = getSelectedTags('material-platform-tags');
     const status = document.getElementById('add-material-status').value;
-    const statusMap = { draft: '草稿', pending: '待投放', published: '已投放' };
-    const statusClass = { draft: 'draft', pending: 'pending', published: 'published' };
-    const html = `<div class="material-item">
-        <span style="font-size:1.2rem;">🎬</span>
-        <div style="flex:1;">
-            <div style="font-weight:600;font-size:0.88rem;">${name}</div>
-            <div style="font-size:0.78rem;color:var(--text-muted);">投放平台：${platforms.join(' / ') || '未指定'}</div>
-        </div>
-        <span class="material-status ${statusClass[status]}">${statusMap[status]}</span>
-    </div>`;
-    document.getElementById('material-list').insertAdjacentHTML('beforeend', html);
+    materials.push({ name, platforms, status, createdAt: new Date().toISOString() });
+    localStorage.setItem('adflow_materials', JSON.stringify(materials));
+    renderMaterialList();
     closeModal('modal-add-material');
     document.getElementById('add-material-name').value = '';
     document.querySelectorAll('#material-platform-tags .tag').forEach(t => t.classList.remove('selected'));
+    toast('素材已添加', 'success');
+}
+
+function renderMaterialList() {
+    const list = document.getElementById('material-list');
+    if (materials.length === 0) {
+        list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text-muted;">暂无素材，点击上方按钮添加</div>';
+        return;
+    }
+    const statusMap = { draft: '草稿', pending: '待投放', published: '已投放' };
+    list.innerHTML = materials.map((m, i) => `
+        <div class="material-item">
+            <span style="font-size:1.2rem;">🎬</span>
+            <div style="flex:1;">
+                <div style="font-weight:600;font-size:0.88rem;">${m.name}</div>
+                <div style="font-size:0.78rem;color:var(--text-muted);">投放平台：${m.platforms.join(' / ') || '未指定'}</div>
+            </div>
+            <span class="material-status ${m.status}">${statusMap[m.status]}</span>
+            <button class="btn btn-sm btn-danger" style="padding:3px 8px;font-size:0.72rem;" onclick="removeMaterial(${i})">删</button>
+        </div>
+    `).join('');
+}
+
+function removeMaterial(i) {
+    materials.splice(i, 1);
+    localStorage.setItem('adflow_materials', JSON.stringify(materials));
+    renderMaterialList();
 }
 
 // ===== MONITOR DATA =====
+function getFilteredMonitorData() {
+    let data = [...monitorData];
+    const dateStart = document.getElementById('filter-date-start').value;
+    const dateEnd = document.getElementById('filter-date-end').value;
+    const platform = document.getElementById('filter-platform').value;
+    if (dateStart) data = data.filter(d => d.date >= dateStart);
+    if (dateEnd) data = data.filter(d => d.date <= dateEnd);
+    if (platform) data = data.filter(d => d.platform === platform);
+    return data;
+}
+
 function addMonitorData() {
     const date = document.getElementById('monitor-date').value;
     const platform = document.getElementById('monitor-platform').value;
@@ -1306,40 +1588,48 @@ function addMonitorData() {
     const convert = parseFloat(document.getElementById('monitor-convert').value) || 0;
     const note = document.getElementById('monitor-note').value.trim();
 
-    if (!date) { alert('请选择日期'); return; }
-    if (spend === 0 && impression === 0) { alert('请至少填写消耗或曝光量'); return; }
+    if (!date) { toast('请选择日期', 'warning'); return; }
+    if (spend === 0 && impression === 0) { toast('请至少填写消耗或曝光量', 'warning'); return; }
 
     monitorData.push({ date, platform, spend, impression, click, interact, convert, note });
     localStorage.setItem('adflow_monitor', JSON.stringify(monitorData));
     renderMonitorTable();
+    ['monitor-spend','monitor-impression','monitor-click','monitor-interact','monitor-convert','monitor-note'].forEach(id => document.getElementById(id).value = '');
+    toast('数据已录入', 'success');
+}
 
-    // Reset inputs
-    document.getElementById('monitor-spend').value = '';
-    document.getElementById('monitor-impression').value = '';
-    document.getElementById('monitor-click').value = '';
-    document.getElementById('monitor-interact').value = '';
-    document.getElementById('monitor-convert').value = '';
-    document.getElementById('monitor-note').value = '';
+function sortMonitorTable(field) {
+    if (monitorSortField === field) monitorSortAsc = !monitorSortAsc;
+    else { monitorSortField = field; monitorSortAsc = true; }
+    renderMonitorTable();
 }
 
 function renderMonitorTable() {
     const tbody = document.getElementById('monitor-tbody');
+    const filtered = getFilteredMonitorData();
     if (monitorData.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:2rem;">暂无数据，请先录入</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--text-muted);padding:2rem;">暂无数据，请先录入</td></tr>';
         return;
     }
-    tbody.innerHTML = monitorData.map((d, i) => `
-        <tr>
-            <td>${d.date}</td>
-            <td>${d.platform}</td>
-            <td>${d.spend.toLocaleString()}</td>
-            <td>${d.impression.toLocaleString()}</td>
-            <td>${d.click.toLocaleString()}</td>
-            <td>${d.interact.toLocaleString()}</td>
-            <td>${d.convert.toLocaleString()}</td>
-            <td><button class="btn btn-sm btn-danger" style="padding:3px 8px;font-size:0.72rem;" onclick="removeMonitorRow(${i})">删</button></td>
-        </tr>
-    `).join('');
+    filtered.sort((a, b) => {
+        let va = a[monitorSortField], vb = b[monitorSortField];
+        if (typeof va === 'string') return monitorSortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+        return monitorSortAsc ? va - vb : vb - va;
+    });
+    tbody.innerHTML = filtered.map((d) => {
+        const origIdx = monitorData.indexOf(d);
+        const ctr = d.impression > 0 ? ((d.click / d.impression) * 100).toFixed(2) + '%' : '-';
+        const ir = d.impression > 0 ? ((d.interact / d.impression) * 100).toFixed(2) + '%' : '-';
+        const cpc = d.click > 0 ? '¥' + (d.spend / d.click).toFixed(2) : '-';
+        const cpm = d.impression > 0 ? '¥' + (d.spend / d.impression * 1000).toFixed(2) : '-';
+        return `<tr>
+            <td>${d.date}</td><td>${d.platform}</td>
+            <td>${d.spend.toLocaleString()}</td><td>${d.impression.toLocaleString()}</td>
+            <td>${ctr}</td><td>${ir}</td><td>${d.convert.toLocaleString()}</td>
+            <td>${cpc}</td><td>${cpm}</td>
+            <td><button class="btn btn-sm btn-danger" style="padding:3px 8px;font-size:0.72rem;" onclick="removeMonitorRow(${origIdx})">删</button></td>
+        </tr>`;
+    }).join('');
 }
 
 function removeMonitorRow(i) {
@@ -1353,15 +1643,41 @@ function clearMonitorData() {
     monitorData = [];
     localStorage.setItem('adflow_monitor', JSON.stringify(monitorData));
     renderMonitorTable();
+    toast('数据已清空', 'success');
+}
+
+function exportMonitorData() {
+    const filtered = getFilteredMonitorData();
+    if (filtered.length === 0) { toast('暂无数据可导出', 'warning'); return; }
+    const headers = ['日期', '平台', '消耗(元)', '曝光', '点击', '互动', '转化', '点击率', '互动率', 'CPC', 'CPM', '备注'];
+    const rows = filtered.map(d => {
+        const ctr = d.impression > 0 ? ((d.click / d.impression) * 100).toFixed(2) + '%' : '';
+        const ir = d.impression > 0 ? ((d.interact / d.impression) * 100).toFixed(2) + '%' : '';
+        const cpc = d.click > 0 ? (d.spend / d.click).toFixed(2) : '';
+        const cpm = d.impression > 0 ? (d.spend / d.impression * 1000).toFixed(2) : '';
+        return [d.date, d.platform, d.spend, d.impression, d.click, d.interact, d.convert, ctr, ir, cpc, cpm, d.note];
+    });
+    const csv = [headers.join(','), ...rows.map(r => r.map(v => `"${v || ''}"`).join(','))].join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = '监控数据_' + new Date().toISOString().split('T')[0] + '.csv';
+    link.click();
+    toast(`导出 ${filtered.length} 条数据`, 'success');
 }
 
 // ===== MONITOR CHARTS =====
 let trendChart = null, pieChart = null, funnelChart = null;
 
 function renderMonitorCharts() {
-    if (monitorData.length === 0) return;
+    if (monitorData.length === 0) {
+        document.getElementById('chart-area').style.display = 'block';
+        document.getElementById('chart-area-filled').style.display = 'none';
+        return;
+    }
+    document.getElementById('chart-area').style.display = 'none';
+    document.getElementById('chart-area-filled').style.display = 'block';
 
-    // Stats
     const totalSpend = monitorData.reduce((s, d) => s + d.spend, 0);
     const totalImpression = monitorData.reduce((s, d) => s + d.impression, 0);
     const totalClick = monitorData.reduce((s, d) => s + d.click, 0);
@@ -1371,7 +1687,6 @@ function renderMonitorCharts() {
     document.getElementById('stat-ctr').textContent = totalImpression > 0 ? ((totalClick / totalImpression) * 100).toFixed(2) + '%' : '0%';
     document.getElementById('stat-cvr').textContent = totalClick > 0 ? ((totalConvert / totalClick) * 100).toFixed(2) + '%' : '0%';
 
-    // Aggregate by date
     const byDate = {};
     monitorData.forEach(d => {
         if (!byDate[d.date]) byDate[d.date] = { spend: 0, impression: 0, click: 0 };
@@ -1381,7 +1696,6 @@ function renderMonitorCharts() {
     });
     const dates = Object.keys(byDate).sort();
 
-    // Trend chart
     if (trendChart) trendChart.destroy();
     trendChart = new Chart(document.getElementById('chart-trend'), {
         type: 'line',
@@ -1402,7 +1716,6 @@ function renderMonitorCharts() {
         }
     });
 
-    // Pie chart - by platform
     const byPlatform = {};
     monitorData.forEach(d => { byPlatform[d.platform] = (byPlatform[d.platform] || 0) + d.spend; });
     if (pieChart) pieChart.destroy();
@@ -1415,7 +1728,6 @@ function renderMonitorCharts() {
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, font: { size: 11 } } } } }
     });
 
-    // Funnel chart
     if (funnelChart) funnelChart.destroy();
     funnelChart = new Chart(document.getElementById('chart-funnel'), {
         type: 'bar',
@@ -1440,8 +1752,8 @@ async function generateAnalysis() {
     const dimensions = getSelectedTags('analysis-tags');
     const extra = document.getElementById('analysis-extra').value.trim();
 
-    if (dimensions.length === 0) { alert('请至少选择一个分析维度'); return; }
-    if (monitorData.length === 0) { alert('请先在「数据监控」中录入数据'); return; }
+    if (dimensions.length === 0) { toast('请至少选择一个分析维度', 'warning'); return; }
+    if (monitorData.length === 0) { toast('请先在「数据监控」中录入数据', 'warning'); return; }
 
     const btnText = document.getElementById('analysis-btn-text');
     btnText.innerHTML = '<span class="loading"></span>分析中...';
@@ -1467,8 +1779,10 @@ async function generateAnalysis() {
             fullText += decoder.decode(value, { stream: true });
             outputContent.innerHTML = marked.parse(fullText);
         }
+        toast('分析报告生成完成', 'success');
     } catch (e) {
         outputContent.textContent = '分析生成失败，请检查网络连接。';
+        toast('分析失败', 'error');
     }
     btnText.textContent = '🤖 生成分析报告';
     document.querySelector('#analysis-module .btn').disabled = false;
