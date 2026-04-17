@@ -611,29 +611,11 @@ class handler(BaseHTTPRequestHandler):
         import os
         import requests as req_lib
 
-        api_key = os.environ.get('GEMINI_API_KEY', '')
+        # 优先 Gemini，兜底 DashScope
+        gemini_key = os.environ.get('GEMINI_API_KEY', '') or os.environ.get('gemini-api-key', '') or os.environ.get('GEMINI-API-KEY', '')
+        dashscope_key = os.environ.get('DASHSCOPE_API_KEY', '') or os.environ.get('dashscope-api-key', '')
 
-        if not api_key:
-            self._send_json(500, {'error': 'GEMINI_API_KEY 未配置，请在 Vercel 环境变量中设置'})
-            return
-
-        url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent?alt=sse&key={api_key}'
-
-        payload = {
-            "contents": [
-                {
-                    "role": "user",
-                    "parts": [
-                        {"text": "你是专业的电视剧营销投流策略专家，擅长制定精准的投流策略、生成吸引人的投放文案。你需要基于剧集特点，给出可落地的营销建议。请使用 Markdown 格式输出，让内容结构清晰。\n\n" + prompt}
-                    ]
-                }
-            ],
-            "generationConfig": {
-                "temperature": 0.8,
-                "topP": 0.9,
-                "maxOutputTokens": 8192
-            }
-        }
+        system_msg = "你是专业的电视剧营销投流策略专家，擅长制定精准的投流策略、生成吸引人的投放文案。你需要基于剧集特点，给出可落地的营销建议。请使用 Markdown 格式输出，让内容结构清晰。"
 
         self.send_response(200)
         self.send_header('Content-Type', 'text/plain; charset=utf-8')
@@ -643,35 +625,73 @@ class handler(BaseHTTPRequestHandler):
         self.end_headers()
 
         try:
-            response = req_lib.post(
-                url,
-                headers={'Content-Type': 'application/json'},
-                json=payload,
-                stream=True,
-                timeout=120
-            )
-            response.raise_for_status()
-
-            for line in response.iter_lines():
-                if not line:
-                    continue
-                line_str = line.decode('utf-8')
-                if line_str.startswith('data: '):
-                    data_str = line_str[6:]
-                    if data_str.strip() == '[DONE]':
-                        break
-                    try:
-                        result = json.loads(data_str)
-                        candidates = result.get('candidates', [])
-                        if candidates:
-                            parts = candidates[0].get('content', {}).get('parts', [])
-                            for part in parts:
-                                content = part.get('text', '')
-                                if content:
-                                    self.wfile.write(content.encode('utf-8'))
-                                    self.wfile.flush()
-                    except (json.JSONDecodeError, KeyError, IndexError):
+            if gemini_key:
+                # === Gemini 方案 ===
+                url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent?alt=sse&key={gemini_key}'
+                payload = {
+                    "contents": [{"role": "user", "parts": [{"text": system_msg + "\n\n" + prompt}]}],
+                    "generationConfig": {"temperature": 0.8, "topP": 0.9, "maxOutputTokens": 8192}
+                }
+                response = req_lib.post(url, headers={'Content-Type': 'application/json'}, json=payload, stream=True, timeout=120)
+                response.raise_for_status()
+                for line in response.iter_lines():
+                    if not line:
                         continue
+                    line_str = line.decode('utf-8')
+                    if line_str.startswith('data: '):
+                        data_str = line_str[6:]
+                        if data_str.strip() == '[DONE]':
+                            break
+                        try:
+                            result = json.loads(data_str)
+                            candidates = result.get('candidates', [])
+                            if candidates:
+                                parts = candidates[0].get('content', {}).get('parts', [])
+                                for part in parts:
+                                    content = part.get('text', '')
+                                    if content:
+                                        self.wfile.write(content.encode('utf-8'))
+                                        self.wfile.flush()
+                        except (json.JSONDecodeError, KeyError, IndexError):
+                            continue
+            elif dashscope_key:
+                # === DashScope 兜底方案 ===
+                url = 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions'
+                payload = {
+                    "model": "qwen-plus",
+                    "messages": [
+                        {"role": "system", "content": system_msg},
+                        {"role": "user", "content": prompt}
+                    ],
+                    "stream": True,
+                    "temperature": 0.8,
+                    "max_tokens": 4096
+                }
+                response = req_lib.post(url, headers={
+                    'Content-Type': 'application/json',
+                    'Authorization': f'Bearer {dashscope_key}'
+                }, json=payload, stream=True, timeout=120)
+                response.raise_for_status()
+                for line in response.iter_lines():
+                    if not line:
+                        continue
+                    line_str = line.decode('utf-8')
+                    if line_str.startswith('data: '):
+                        data_str = line_str[6:]
+                        if data_str.strip() == '[DONE]':
+                            break
+                        try:
+                            result = json.loads(data_str)
+                            delta = result.get('choices', [{}])[0].get('delta', {})
+                            content = delta.get('content', '')
+                            if content:
+                                self.wfile.write(content.encode('utf-8'))
+                                self.wfile.flush()
+                        except (json.JSONDecodeError, KeyError, IndexError):
+                            continue
+            else:
+                self.wfile.write(json.dumps({'error': '未配置任何 AI API Key（GEMINI_API_KEY 或 DASHSCOPE_API_KEY）'}).encode('utf-8'))
+                self.wfile.flush()
         except Exception as e:
             self.wfile.write(f"\n\n❌ 生成出错：{str(e)}".encode('utf-8'))
             self.wfile.flush()
